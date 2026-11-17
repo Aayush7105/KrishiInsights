@@ -30,7 +30,7 @@ target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = settings.DATABASE_URL
+    url = getattr(settings, "DATABASE_URL_DIRECT", None) or settings.DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -43,10 +43,11 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """Run migrations in 'online' mode using direct unpooled connection."""
     configuration = config.get_section(config.config_ini_section, {})
-    # Override sqlalchemy.url with dynamic environment variable
-    configuration["sqlalchemy.url"] = settings.DATABASE_URL
+    # Use direct unpooled connection for migrations and DDL operations
+    migration_url = getattr(settings, "DATABASE_URL_DIRECT", None) or settings.DATABASE_URL
+    configuration["sqlalchemy.url"] = migration_url
 
     connectable = engine_from_config(
         configuration,

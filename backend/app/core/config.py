@@ -2,21 +2,15 @@ import os
 from typing import List
 from dotenv import load_dotenv
 
-# Search for environment variables:
-# 1. Local backend/.env (default local PostgreSQL)
-# 2. Root .env or .env.local (supports Neon when USE_NEON=true or when specified)
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-# Load backend/.env first
+# Load environment configuration:
+# 1. Root .env and .env.local (contains Neon project configuration)
+load_dotenv(os.path.join(root_dir, ".env.local"))
+load_dotenv(os.path.join(root_dir, ".env"))
+# 2. backend/.env
 load_dotenv(os.path.join(backend_dir, ".env"))
-
-# If USE_NEON=true is set, load root .env.local / .env
-if os.getenv("USE_NEON", "").lower() in ("true", "1", "yes"):
-    load_dotenv(os.path.join(root_dir, ".env.local"), override=True)
-    load_dotenv(os.path.join(root_dir, ".env"), override=True)
-else:
-    load_dotenv(os.path.join(root_dir, ".env"))
 
 def normalize_database_url(url: str) -> str:
     """Ensures PostgreSQL URLs use psycopg2 dialect for SQLAlchemy compatibility."""
@@ -33,13 +27,18 @@ class Settings:
     PROJECT_VERSION: str = os.getenv("PROJECT_VERSION", "0.1.0")
     API_PREFIX: str = os.getenv("API_PREFIX", "/api")
     
-    # Database Configuration (Environment-driven, supports local & hosted PostgreSQL)
-    DATABASE_URL: str = normalize_database_url(
-        os.getenv(
-            "DATABASE_URL",
-            "postgresql+psycopg2://krishiinsights_user:password@localhost:5432/krishiinsights_db"
+    # Primary Database Configuration (Neon Serverless PostgreSQL)
+    raw_db_url = os.getenv("DATABASE_URL")
+    if not raw_db_url:
+        raise ValueError(
+            "CRITICAL: DATABASE_URL is not set. Neon Serverless Postgres is the primary database. "
+            "Please ensure .env or .env.local contains a valid Neon connection string."
         )
-    )
+    DATABASE_URL: str = normalize_database_url(raw_db_url)
+
+    # Direct / Unpooled Connection (Used for Alembic migrations and DDL)
+    raw_direct_url = os.getenv("DATABASE_URL_DIRECT") or os.getenv("DATABASE_URL_UNPOOLED") or raw_db_url
+    DATABASE_URL_DIRECT: str = normalize_database_url(raw_direct_url)
 
     # CORS Origins
     BACKEND_CORS_ORIGINS: List[str] = [

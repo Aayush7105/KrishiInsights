@@ -24,8 +24,8 @@ KrishiInsights adopts a modular monorepo pattern that cleanly separates the user
         SQL / Queries                 Pipeline Loading
                │                              │
 ┌──────────────▼──────────────┐ ┌─────────────▼───────────────┐
-│     PostgreSQL Database     │ │   Trained Model Artifacts   │
-│  (PostgreSQL 17, Alembic)   │ │   (.joblib, Scikit-learn)   │
+│     Neon Cloud Database     │ │   Trained Model Artifacts   │
+│  (Serverless Postgres, AWS) │ │   (.joblib, Scikit-learn)   │
 └──────────────▲──────────────┘ └─────────────▲───────────────┘
                │ Ingestion Pipeline           │ Feature Matrix
 ┌──────────────┴──────────────────────────────┴───────────────┐
@@ -72,7 +72,7 @@ KrishiInsights adopts a modular monorepo pattern that cleanly separates the user
          └── Batch PostgreSQL ingestion (Alembic managed schema)
                        │
                        ▼
-         PostgreSQL 17 (`krishiinsights_db`)
+         Neon Serverless PostgreSQL (`neondb` on AWS us-east-1)
          (states, districts, crops, agricultural_records, rainfall_records)
 ```
 
@@ -104,7 +104,48 @@ The relational schema is configured in `backend/app/models/agriculture.py` and v
 * Provides decoupled environment configuration supporting both local development PostgreSQL and future hosted instances (Supabase, AWS RDS, Neon) without application code changes.
 * Enforces CORS policies for `http://localhost:3000`.
 
-### 4.3 Machine Learning Module (`ml/`)
-* Houses offline analytical notebooks (`ml/notebooks/`), feature engineering, and model training routines.
-* Consumes processed records from `datasets/processed/combined_data.csv`.
+### 4.3 Machine Learning & Analytics Module (`ml/`)
+* Houses offline analytical engines (`ml/src/analytics/`), chart visualization tools (`ml/src/visualization/`), and automated test suites (`ml/tests/`).
+* Directly queries Neon Serverless PostgreSQL (`neondb`) via `ml/src/database/connection.py` for all exploratory data analysis and aggregations.
+* Houses executed programmatic Jupyter exploration notebooks (`ml/notebooks/01`–`05`).
 * Serializes validated regression pipelines (`.joblib`) into `ml/artifacts/` for backend deployment.
+
+---
+
+## 5. Analytics & Visualization Pipeline Architecture (Stage 4)
+
+Stage 4 established an end-to-end analytical computing layer decoupling database queries from presentation:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 Neon PostgreSQL (`neondb`)                  │
+│       agricultural_records (242k) | rainfall_records (3.7k) │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ SQLAlchemy Pooled / Unpooled
+┌──────────────────────────────▼──────────────────────────────┐
+│              `ml/src/database/connection.py`                │
+│    Dialect Normalization, Engine Cache, Query Runners       │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ DataFrames
+┌──────────────────────────────▼──────────────────────────────┐
+│                  `ml/src/analytics/`                        │
+│  ├── agricultural_eda.py (Descriptive stats, annual trends) │
+│  ├── crop_analysis.py    (Top-10 rankings, CV variability)  │
+│  ├── regional_analysis.py(State performance, Shannon index) │
+│  ├── rainfall_analysis.py(115-yr trends, LPA deviations)    │
+│  ├── correlation_analysis(Seasonal, crop, state sensitivity)│
+│  └── outlier_analysis.py (IQR, Z-score, anomaly classify)   │
+└──────────────┬──────────────────────────────┬───────────────┘
+               │ Analytical DataFrames        │ Validated Findings
+┌──────────────▼──────────────┐ ┌─────────────▼───────────────┐
+│   `ml/src/visualization/`   │ │       `ml/notebooks/`       │
+│  (15 High-Res Figures)      │ │  (5 Executed Notebooks)     │
+│  Saved in ml/reports/figures│ │  01_eda to 05_correlation   │
+└─────────────────────────────┘ └─────────────────────────────┘
+```
+
+### Architectural Principles Applied in Stage 4:
+1. **Mathematical Aggregate Yield:** All queries evaluate national/regional yield as $\frac{\sum \text{Production}}{\sum \text{Area}}$ to eliminate spatial weighting bias.
+2. **Strict Unit Isolation:** Field crops ($\text{Tonnes/Ha}$) are never averaged with tree crops ($\text{Nuts/Ha}$).
+3. **Composite Spatial Identity:** To prevent district name collisions, districts are queried and indexed as composite pairs `(state_name, district_name)`.
+4. **Simpson's Paradox Resolution:** Cross-state spatial pooling is explicitly differentiated from within-state temporal sensitivity.

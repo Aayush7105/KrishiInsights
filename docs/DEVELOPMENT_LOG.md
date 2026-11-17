@@ -298,3 +298,114 @@ Execute Stage 3 strictly per `AGENTS.md` and the Stage 3 Specification:
 * Maintained local PostgreSQL development configuration in `backend/.env` untouched.
 * Enhanced `backend/app/core/config.py` with dynamic SQLAlchemy dialect normalization (`postgresql://` -> `postgresql+psycopg2://`) and seamless `USE_NEON=true` environment toggling.
 * Verified that zero database migrations, schema mutations, or table truncations were run on either database.
+
+---
+
+## Infrastructure Milestone: Full Migration from Local PostgreSQL to Neon Serverless Postgres (November 17, 2026)
+
+### 1. Scope & Objectives
+* Migrate all historical data, schema, indexes, constraints, and sequences from local PostgreSQL 17 to Neon Serverless PostgreSQL (`neondb` on AWS us-east-1).
+* Establish Neon as the single authoritative primary database for the application and all five team developers.
+* Maintain a local timestamped custom-format archive for disaster recovery.
+* Verify 100% data parity with zero discrepancies.
+* Ensure fail-fast error handling (no silent local fallbacks or dual writes).
+
+### 2. Files Created & Modified
+* **Created:**
+  - `database/backups/krishiinsights_db_backup_20261117_224157.dump`: Full custom-format local PostgreSQL backup (3.30 MB, excluded from git).
+  - `scripts/backup_local_db.py`: Automated local backup script using PostgreSQL 17 `pg_dump`.
+  - `scripts/restore_to_neon.py`: Migration restore runner executing `pg_restore` into Neon direct unpooled connection.
+  - `scripts/verify_neon_migration.py`: Automated side-by-side verification audit between local and Neon instances.
+  - `scripts/test_neon_primary_app.py`: Application-level verification suite testing read, safe write/read-back, and zero localhost dependency.
+  - `docs/NEON_MIGRATION_REPORT.md`: Comprehensive forensic migration report.
+* **Modified:**
+  - `backend/app/core/config.py`: Made Neon the primary database, added `DATABASE_URL_DIRECT`, eliminated hardcoded localhost defaults.
+  - `database/migrations/env.py`: Configured Alembic to use `DATABASE_URL_DIRECT` (unpooled connection).
+  - `.env.example`: Updated with team collaboration templates, pooled/unpooled endpoints, and safe placeholders.
+  - `.gitignore`: Added `database/backups/` and `*.dump`.
+  - `README.md`, `database/README.md`, `docs/ARCHITECTURE.md`, `CHANGELOG.md`.
+
+### 3. Verification Commands & Results
+| Check | Command | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **Local Pre-Check** | `python scripts/record_local_db_state.py` | Recorded 242,296 agri, 3,772 rain, 31 indexes | **PASSED** |
+| **Backup Creation** | `python scripts/backup_local_db.py` | Generated 3.30 MB custom-format `.dump` archive | **PASSED** |
+| **Neon Pre-Check** | `python scripts/check_neon_preflight.py` | Confirmed `neondb` public schema had 0 tables | **PASSED** |
+| **Restore Execution** | `python scripts/restore_to_neon.py` | Restored all schema and rows, return code 0 | **PASSED** |
+| **Side-by-Side Audit** | `python scripts/verify_neon_migration.py` | 100% parity across all 7 tables, metrics, indexes | **PASSED** |
+| **Application Tests** | `python scripts/test_neon_primary_app.py` | Read and write-back verified on Neon | **PASSED** |
+| **Backend Pytest** | `pytest backend/tests` | 6 passed in 14.25s against Neon | **PASSED** |
+| **Frontend Build** | `cd frontend && npx next build` | Compiled successfully with 0 errors | **PASSED** |
+
+---
+
+## Stage 4: Exploratory Data Analysis (EDA) & Statistical Analysis (November 17, 2026)
+
+### 1. Scope & Objectives
+* Execute Stage 4 of the KrishiInsights 12-stage plan: comprehensive exploratory data analysis, agricultural statistical profiling, regional rankings, 115-year meteorological analysis, and agro-climatic relationship discovery.
+* Query Neon Serverless PostgreSQL (`neondb` on AWS us-east-1) as the single source of truth for all aggregations and statistics.
+* Ensure strict adherence to the project rules in `AGENTS.md` (unit isolation, authentic calculations, no data fabrication, correlation $\neq$ causation).
+* Deliver modular, reusable Python analytical and visualization packages, executed Jupyter notebooks, comprehensive documentation reports, and an automated test suite.
+
+### 2. Files Created & Modified
+* **Analytical Modules (`ml/src/analytics/`):**
+  - `agricultural_eda.py`: Overall descriptive statistics (mean, median, std, IQR, min, max), historical trends (1997–2015), YoY percentage growth, and seasonal distributions with strict unit isolation.
+  - `crop_analysis.py`: Single-crop historical profiles, top 10 rankings by production, area, and yield, production variability ($CV\%$), and 3-year smoothed growth/decline rankings.
+  - `regional_analysis.py`: State-level leaderboards across 33 states/UTs, multi-state comparison queries, top producing districts with composite `(state_name, district_name)` pairs, and Shannon Crop Diversity Index ($H' = -\sum p_i \ln p_i$).
+  - `rainfall_analysis.py`: 115-year IMD meteorological trends (1901–2015), Long Period Average (LPA = 1,180.72 mm), deficit/drought and excess/flood classification, seasonal breakdown, and wettest/driest state rankings.
+  - `correlation_analysis.py`: Paired seasonal correlations (Southwest Monsoon vs Kharif, Winter vs Rabi, Pre-Monsoon vs Summer), crop-specific rainfall sensitivities, and state-level sensitivity divergence.
+  - `outlier_analysis.py`: Tukey's IQR ($1.5 \times IQR$) and Z-score ($|z| > 3.0$) detection across production, area, yield, and rainfall, separating clerical artifacts from legitimate agro-climatic extremes.
+  - `__init__.py`: Package export interface.
+* **Database Access Layer (`ml/src/database/`):**
+  - `connection.py`: Singleton SQLAlchemy engine supporting Neon pooled and unpooled connections, dynamic dialect normalization (`postgresql+psycopg2://`), and optimized DataFrame loaders.
+  - `__init__.py`: Package export interface.
+* **Visualization Modules (`ml/src/visualization/`):**
+  - `agricultural_charts.py`: High-resolution figures for production/area dual-axis trends, national weighted yield series, seasonal distribution, horizontal crop ranking bars, and multi-panel KDE/histogram empirical yield distributions.
+  - `rainfall_charts.py`: 115-year historical rainfall time series with 5-year moving average and LPA baseline, annual LPA departure anomaly bar chart, seasonal breakdown, and wettest/driest state comparison.
+  - `comparison_charts.py`: Rainfall vs yield scatter plots with linear regression fit lines and stats annotations, paired correlation heatmaps, state sensitivity contrast bars, and crop yield outlier boxplots.
+  - `generate_all_figures.py`: Automated pipeline rendering and saving all 15 figures to `ml/reports/figures/`.
+  - `__init__.py`: Package export interface.
+* **Generated Figures (`ml/reports/figures/`):**
+  - 15 publication-grade 300 DPI PNG figures (all non-empty, sizes 125 KB to 502 KB).
+* **Jupyter Notebooks (`ml/notebooks/`):**
+  - `01_agricultural_eda.ipynb`: Descriptive statistics, annual trends, seasonal aggregations.
+  - `02_crop_analysis.ipynb`: Single-crop profiles, top-10 rankings, CV variability, growth/decline.
+  - `03_regional_analysis.ipynb`: State summaries, multi-state comparison, composite district leaders, Shannon diversity.
+  - `04_rainfall_analysis.ipynb`: 115-year rainfall trends, LPA departures, wettest/driest rankings.
+  - `05_rainfall_agriculture_relationship.ipynb`: Paired seasonal correlations, crop sensitivity, state sensitivity, outlier detection, and agricultural caveats.
+  - `build_notebooks.py`: Generator script that executed all code cells against Neon and captured verified stdout outputs.
+* **Analytical Documentation Reports (`docs/`):**
+  - `docs/EDA_REPORT.md`: Comprehensive EDA findings and descriptive stats.
+  - `docs/AGRICULTURAL_ANALYSIS.md`: National production, area, yield trends, crop rankings, and growth/decline.
+  - `docs/REGIONAL_ANALYSIS.md`: State-level performance, regional dynamics, composite district leaders, Shannon diversity.
+  - `docs/RAINFALL_ANALYSIS.md`: 115-year IMD rainfall patterns, LPA departures, inverse stability rule.
+  - `docs/RAINFALL_AGRICULTURE_RELATIONSHIP.md`: Paired seasonal correlations, crop sensitivities, state divergence, Simpson's Paradox, outlier analysis, and causal caveats.
+  - `docs/STATISTICAL_FINDINGS.md`: Master synthesis of quantitative facts and direct architectural implications for Stage 9 ML modeling.
+* **Test Suite (`ml/tests/`):**
+  - `test_analytics.py`: 11 automated pytest unit and integration test cases.
+* **Documentation & Configuration:**
+  - `ml/README.md`: Updated with complete Stage 4 structure and usage guide.
+  - `README.md`, `docs/ARCHITECTURE.md`, `CHANGELOG.md`.
+
+### 3. Key Technical Decisions & Rationales
+1. **Mathematical Aggregate Yield:** Computed strictly as $\frac{\sum \text{Production}}{\sum \text{Area}}$ across valid observations ($\text{Area} > 0$). Simple arithmetic averaging of district yields introduces massive spatial bias and was prohibited.
+2. **Strict Physical Unit Isolation:** Coconut ($5,842\text{ nuts/ha}$, averaging $108\text{ million}$ nuts/observation) was strictly segregated from field crops ($3.52\text{ T/ha}$). Combining them would corrupt all national production and yield statistics.
+3. **Composite Spatial Identity:** District names collide across state boundaries (e.g. Aurangabad in Bihar & Maharashtra; Bilaspur in HP & Chhattisgarh). Queries and rankings identify districts via composite pairs `(state_name, district_name)`.
+4. **Simpson's Paradox in Agro-Meteorology:** Cross-state spatial pooling produces an apparent negative correlation with rainfall because high-rainfall northeastern states have lower agricultural yields than semi-arid, canal-irrigated northern states (Punjab, Haryana). Within rainfed states over time (Rajasthan, MP, Odisha, Chhattisgarh), the correlation between monsoon rain and crop yield is strongly positive ($r > 0.52$ to $0.73$).
+5. **Legitimate Agro-Climatic Extremes vs Clerical Artifacts:** IQR and Z-score analysis distinguished true crop failures ($38\text{ records}$ with area $>100\text{ ha}$ and production $=0$) and intensive sugarcane yields ($>90\text{ T/Ha}$) from clerical data entry artifacts ($142\text{ records}$ with area $<5\text{ ha}$ and production $>100\text{ T}$).
+
+### 4. Verification Commands & Results
+| Check | Command | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **Figure Generation** | `python ml/src/visualization/generate_all_figures.py` | 15 high-res PNG charts rendered and verified | **PASSED** |
+| **Notebook Execution** | `python ml/notebooks/build_notebooks.py` | 5 programmatic notebooks executed against Neon | **PASSED** |
+| **Analytics Test Suite** | `pytest ml/tests/test_analytics.py -v` | 11 passed in 26.42s against Neon | **PASSED** |
+| **Backend Test Suite** | `pytest backend/tests -v` | 6 passed in 9.62s | **PASSED** |
+| **Total Test Suite** | Combined pytest execution | 17 passed, 0 failed | **PASSED** |
+
+### 5. Immediate Next Steps
+* Await user verification and formal approval of Stage 4.
+* Proceed to **Stage 5 — FastAPI Backend and Analytics APIs** upon explicit instruction:
+  - Implement RESTful endpoints for dashboard summary metrics, trends, crop comparisons, regional rankings, rainfall statistics, and correlation data.
+  - Write Pydantic response models and query parameter validation schemas.
+  - Implement comprehensive integration tests for all new API endpoints.

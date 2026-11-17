@@ -4,6 +4,67 @@ All notable changes to the KrishiInsights project will be documented in this fil
 
 ---
 
+## [Stage 4: Exploratory Data Analysis (EDA) & Statistical Analysis] — 2026-11-17
+
+### Added
+- **Core Analytical Engines (`ml/src/analytics/`):**
+  - `agricultural_eda.py`: Overall descriptive statistics (mean, median, std, IQR, min, max) with strict unit isolation (Tonnes/Ha vs Nuts/Ha), annual aggregate trends (1997–2015), YoY percentage changes, long-term indices, and seasonal distributions.
+  - `crop_analysis.py`: Single-crop profiles, top 10 rankings by production, area, and yield, production variability ($CV\%$), and 3-year smoothed growth/decline rankings.
+  - `regional_analysis.py`: State-level performance leaderboards across 33 states/UTs, multi-state comparative queries, composite district rankings `(state_name, district_name)`, and Shannon Crop Diversity Index calculations.
+  - `rainfall_analysis.py`: 115-year IMD meteorological analysis (1901–2015), Long Period Average (LPA = 1,180.72 mm), deficit/excess year classification, seasonal breakdown, and wettest/driest state rankings.
+  - `correlation_analysis.py`: Paired seasonal correlations (Pearson $r$ and Spearman $\rho$), crop-specific rainfall sensitivities, and state-level sensitivity divergence.
+  - `outlier_analysis.py`: Tukey's IQR and Z-score outlier detection, distinguishing clerical data artifacts from authentic agro-climatic extremes.
+- **Database Access Layer (`ml/src/database/`):**
+  - `connection.py`: Singleton SQLAlchemy connection manager with pooled/unpooled URL resolution, dynamic dialect normalization (`postgresql+psycopg2://`), and optimized query runners.
+- **Publication-Grade Visualizations (`ml/reports/figures/` & `ml/src/visualization/`):**
+  - Built 3 visualization modules: `agricultural_charts.py`, `rainfall_charts.py`, `comparison_charts.py`.
+  - Created automated rendering pipeline: `ml/src/visualization/generate_all_figures.py`.
+  - Generated 15 high-resolution 300 DPI PNG figures:
+    - `agri_trends_production_area.png`, `agri_national_yield_trend.png`, `agri_seasonal_distribution.png`, `agri_top_crops_production.png`, `agri_top_crops_area.png`, `agri_top_crops_yield.png`, `agri_yield_distributions.png`, `rainfall_115yr_trend.png`, `rainfall_lpa_deviations.png`, `rainfall_seasonal_breakdown.png`, `rainfall_wettest_driest_states.png`, `correlation_rice_monsoon_scatter.png`, `correlation_paired_heatmap.png`, `correlation_state_sensitivity_contrast.png`, `outliers_crop_yield_boxplots.png`.
+- **Programmatic Jupyter Notebooks (`ml/notebooks/`):**
+  - Built and executed 5 self-contained, reproducible notebooks populated with verified stdout streams and execution counts:
+    - `01_agricultural_eda.ipynb`
+    - `02_crop_analysis.ipynb`
+    - `03_regional_analysis.ipynb`
+    - `04_rainfall_analysis.ipynb`
+    - `05_rainfall_agriculture_relationship.ipynb`
+- **Comprehensive Analytical Documentation Reports (`docs/`):**
+  - Published 6 in-depth analytical reports with exact mathematical calculations and agronomic interpretations:
+    - `docs/EDA_REPORT.md`
+    - `docs/AGRICULTURAL_ANALYSIS.md`
+    - `docs/REGIONAL_ANALYSIS.md`
+    - `docs/RAINFALL_ANALYSIS.md`
+    - `docs/RAINFALL_AGRICULTURE_RELATIONSHIP.md`
+    - `docs/STATISTICAL_FINDINGS.md`
+- **Automated Test Suite (`ml/tests/test_analytics.py`):**
+  - Implemented 11 unit and integration test cases covering aggregate yield math, unit isolation, outlier detection formulas, Shannon diversity, and live Neon database queries.
+  - 100% test pass rate achieved across all analytics and backend test suites (17 total tests).
+
+---
+
+## [Database Migration: Local PostgreSQL to Neon Serverless Postgres] — 2026-11-17
+
+### Added
+- **Full Database Migration to Neon Serverless Postgres (`neondb`):**
+  - Generated timestamped PostgreSQL custom-format backup (`database/backups/krishiinsights_db_backup_20261117_224157.dump`, 3.30 MB).
+  - Executed `pg_restore` into Neon project `morning-glitter-97393312` (`my-first-project`), organization `org-steep-leaf-69533238`, active branch `production`.
+  - Transferred and verified all 33 states, 652 districts, 124 crops, 242,296 agricultural observations, 3,772 rainfall observations, 31 indexes and constraints, and Alembic version `001_initial_schema`.
+  - 100% exact parity achieved across all statistical metrics, year ranges, yield units, and referential integrity (0 orphans).
+- **Application Configuration Switch:**
+  - Configured Neon as the primary, authoritative database across `.env` and `backend/.env`.
+  - Configured pooled connection (`DATABASE_URL`) for FastAPI and SQLAlchemy runtime operations.
+  - Configured direct unpooled connection (`DATABASE_URL_DIRECT`) for Alembic migrations and administrative DDL.
+  - Hardened `backend/app/core/config.py` with dynamic SQLAlchemy dialect normalization and fail-fast validation (no silent local fallbacks).
+- **Comprehensive Forensic Verification & Audit:**
+  - Automated side-by-side audit runner created in `scripts/verify_neon_migration.py`.
+  - Created `docs/NEON_MIGRATION_REPORT.md` documenting forensic proof of zero data loss and exact parity.
+  - Verified application read and write-back functionality via `scripts/test_neon_primary_app.py`.
+- **Team Collaboration & Architecture Standards:**
+  - Prepared repository for five-member team collaboration with centralized shared database architecture.
+  - Updated `.env.example` with clear, safe placeholders and team setup instructions.
+
+---
+
 ## [Stage 3: Data Cleaning, Preprocessing & PostgreSQL Ingestion] — 2026-11-17
 
 ### Added

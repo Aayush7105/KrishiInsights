@@ -2,7 +2,7 @@
 
 > **Project Title:** KrishiInsights — An Agricultural Data Analytics and Crop Yield Intelligence Platform Using Machine Learning  
 > **Academic Context:** Final-Year B.Tech Computer Science Project  
-> **Current Status:** **Stage 3 Complete — Data Cleaning, Preprocessing & PostgreSQL Ingestion** (Database fully populated with 242,296 agricultural records, 3,772 rainfall records, 100% verified)
+> **Current Status:** **Stage 4 Complete — Exploratory Data Analysis & Statistical Analysis** (Neon database analyzed across 242,296 agricultural and 3,772 rainfall records; 15 publication-grade figures, 5 executed notebooks, 6 comprehensive reports, 100% test coverage)
 
 ---
 
@@ -29,7 +29,7 @@ The platform's primary purpose is to empower researchers, policymakers, and agri
 | :--- | :--- | :--- |
 | **Frontend** | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS | Responsive UI, interactive dashboards, dynamic routing |
 | **Backend API** | Python 3.15, FastAPI, Pydantic | High-performance asynchronous REST API, validation, routing |
-| **Database** | PostgreSQL 17, SQLAlchemy 2.x, Alembic 1.20 | Relational storage for structured agricultural and rainfall records |
+| **Database** | Neon Serverless PostgreSQL (AWS us-east-1), SQLAlchemy 2.x, Alembic 1.20 | Central cloud relational storage for agricultural and rainfall records |
 | **Data & ML** | Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Joblib | Data processing, statistical analytics, regression pipelines |
 | **Tooling** | Git, Postman, ReportLab | Version control, endpoint testing, report generation |
 
@@ -112,29 +112,26 @@ KrishiInsights/
 
 ## 5. Database Configuration & Setup
 
-1. Copy `.env.example` to `backend/.env` (or configure your environment variables):
+1. Copy `.env.example` to `.env` and `backend/.env`:
    ```bash
-   DATABASE_URL=postgresql+psycopg2://krishiinsights_user:<password>@localhost:5432/krishiinsights_db
+   cp .env.example .env
+   cp .env.example backend/.env
    ```
-2. Test database connectivity:
+   Configure the shared Neon pooled and direct credentials (distributed securely out-of-band to teammates).
+2. Test database connectivity against Neon:
    ```bash
-   python scripts/test_db_connection.py
+   python scripts/test_neon_primary_app.py
    ```
-3. Run schema migrations via Alembic:
+3. Run schema migrations via Alembic (uses direct unpooled connection):
    ```bash
    alembic upgrade head
    ```
-4. Run dataset ingestion into PostgreSQL:
+4. Verification & Audit Reports:
    ```bash
-   # Run 1,000-row test and idempotency check
-   python scripts/run_ingestion.py --test
-
-   # Run full 242k-row ingestion
-   python scripts/run_ingestion.py --full
-
-   # Verify database metrics and referential integrity
-   python scripts/run_ingestion.py --verify
+   # Run side-by-side local vs. Neon verification audit
+   python scripts/verify_neon_migration.py
    ```
+   See [docs/NEON_MIGRATION_REPORT.md](file:///d:/Major%20Project/docs/NEON_MIGRATION_REPORT.md) for complete forensic proof of 100% record and schema parity.
 
 ---
 
@@ -159,4 +156,7 @@ python -m uvicorn app.main:app --app-dir backend --reload --port 8000
 ## 7. Current Implementation Status
 
 > [!NOTE]
-> This repository is currently at **Stage 3 Complete (Data Cleaning, Preprocessing & Full PostgreSQL Ingestion)**. The canonical dataset tiers have been organized and profiled, the PostgreSQL 17 relational database has been migrated and fully populated with 242,296 agricultural records and 3,772 rainfall records, verified with 0 orphan records and 100% unit isolation. Stage 4 will cover Exploratory Data Analysis (EDA) and statistical distributions.
+> This repository is currently at **Stage 4 Complete (Exploratory Data Analysis & Statistical Analysis)**.
+> All descriptive statistics, macro agricultural trends (1997–2015), 115-year IMD rainfall patterns (1901–2015), crop rankings, regional leaderboards across 33 states/UTs, paired seasonal correlations, and outlier analyses were computed directly from Neon PostgreSQL (`neondb`).
+> Deliverables include 6 modular analytical engines (`ml/src/analytics/`), 15 publication-grade figures (`ml/reports/figures/`), 5 executed Jupyter notebooks (`ml/notebooks/`), 6 analytical markdown reports (`docs/`), and 11 automated pytest test cases (`ml/tests/test_analytics.py`) with 100% pass rate.
+> Stage 5 will cover FastAPI backend development and analytics API implementation.

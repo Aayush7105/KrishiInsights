@@ -6,11 +6,12 @@ This directory documents the relational schema, migration management, and connec
 
 ## 1. Database Technology Stack
 
-* **Database Engine:** PostgreSQL 17 (Local development port: 5432, database: `krishiinsights_db`, user: `krishiinsights_user`).
+* **Primary Production Database:** Neon Serverless PostgreSQL (`neondb` on AWS us-east-1, Project: `morning-glitter-97393312`).
+* **Local Offline Backup:** PostgreSQL 17 (Custom-format `.dump` archive in `database/backups/`).
 * **Object-Relational Mapping (ORM):** SQLAlchemy 2.x
 * **Migration Management:** Alembic 1.20+
-* **Driver:** `psycopg2-binary` (PostgreSQL standard binary driver)
-* **Design Philosophy:** Environment-based configuration allowing zero-downtime switching between local PostgreSQL and hosted cloud instances (e.g. Supabase, AWS RDS, Neon) without application code changes.
+* **Driver:** `psycopg2-binary` (PostgreSQL standard binary driver with automatic dialect normalization)
+* **Architecture Philosophy:** Neon is the central production source of truth for all 5 team members. Pooled connection handles application queries; direct unpooled connection handles schema migrations and administrative operations.
 
 ---
 
@@ -111,21 +112,19 @@ alembic downgrade -1
 
 ## 5. Connection Configuration
 
-The application reads `DATABASE_URL` dynamically from the environment. Credentials are never hardcoded.
+The application reads database configuration dynamically from `.env` and `backend/.env`. Neon Serverless PostgreSQL is the primary database.
 
 ```env
-# Local Development (PostgreSQL 17 - Default)
-DATABASE_URL=postgresql+psycopg2://krishiinsights_user:<password>@localhost:5432/krishiinsights_db
+# 1. Primary Runtime Connection: Neon Pooled (FastAPI & SQLAlchemy)
+DATABASE_URL=postgresql+psycopg2://<user>:<password>@ep-blue-queen-bbr4u26m-pooler.c-15.us-east-1.aws.neon.tech/neondb?sslmode=require
 
-# Hosted Production (Neon Serverless Postgres)
-# Toggle USE_NEON=true in .env to use Neon credentials from .env.local without changing code
-USE_NEON=true
-# DATABASE_URL=postgresql+psycopg2://<user>:<password>@<neon-endpoint>.neon.tech/<dbname>?sslmode=require
+# 2. Administrative & Migration Connection: Neon Direct (Alembic DDL)
+DATABASE_URL_DIRECT=postgresql+psycopg2://<user>:<password>@ep-blue-queen-bbr4u26m.c-15.us-east-1.aws.neon.tech/neondb?sslmode=require
 ```
 
-Connection verification can be tested at any time:
+Connection verification test:
 ```bash
-python scripts/test_db_connection.py
+python scripts/test_neon_primary_app.py
 ```
 
 ---
