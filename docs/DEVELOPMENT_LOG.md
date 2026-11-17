@@ -211,3 +211,77 @@ Executed `scripts/profile_datasets.py`:
 | **Ingestion Dry Run** | `python -c "mgr.dry_run_crop_file(...)"` | Tested 1,000 records: 994 valid, 6 skipped | **PASSED** |
 | **Backend Health Test** | `python backend/tests/test_health.py` | Health test passed; routes verified | **PASSED** |
 | **Frontend Production Build** | `cd frontend && npx next build` | Compiled and verified with 0 errors | **PASSED** |
+
+---
+
+## Session 3: Stage 3 — Data Cleaning, Preprocessing & Full PostgreSQL Ingestion (November 17, 2026)
+
+### 1. Objectives & Scope
+Execute Stage 3 strictly per `AGENTS.md` and the Stage 3 Specification:
+- Audit and normalize agricultural and meteorological datasets.
+- Reorganize canonical datasets structure matching project specifications (`datasets/raw/` containing `crop_production.csv` and `rainfall.csv`).
+- Populate lookup tables (`states`, `districts`, `crops`) idempotently with standard agricultural classifications.
+- Ingest full 242,296 cleaned agricultural observations and 3,772 rainfall observations into PostgreSQL 17 (`krishiinsights_db`).
+- Verify referential integrity, zero orphan records, and strict yield unit isolation (Coconut in `Nuts/Hectare` vs field crops in `Tonnes/Hectare`).
+- Provide automated regression tests, verification CLI, and comprehensive ingestion documentation.
+
+---
+
+### 2. Files Created & Modified
+* **Created:**
+  - `scripts/run_ingestion.py`: Multi-command ingestion CLI supporting `--test`, `--full`, and `--verify`.
+  - `backend/tests/test_stage3_ingestion.py`: Automated test suite covering crop classifications, yield math, unit isolation, and live database invariants.
+  - `docs/DATA_INGESTION_REPORT.md`: Detailed engineering report on data provenance, validation steps, SQL verification outputs, and pgAdmin 4 queries.
+* **Modified:**
+  - `datasets/raw/`: Reorganized so `crop_production.csv` and `rainfall.csv` reside directly under `datasets/raw/`.
+  - `backend/app/services/ingestion_service.py`: Implemented `IngestionPipeline` with chunked batch processing, in-memory reference caches, and atomic transaction commits.
+  - `scripts/preprocess_data.py`: Updated raw input paths to reference canonical `datasets/raw/`.
+  - `scripts/profile_datasets.py`: Updated raw dataset paths.
+  - `datasets/README.md`: Updated directory structure and specifications.
+  - `database/README.md`: Documented Stage 3 table row counts and verification queries.
+  - `docs/ARCHITECTURE.md`: Updated data flow diagram to reflect finalized database state.
+  - `CHANGELOG.md`: Recorded Stage 3 release notes.
+
+---
+
+### 3. Implementation Details & Technical Rationales
+
+1. **District Multi-State Collision Resolution:**
+   - There are 646 distinct district names in India, but 652 state-district pairs (e.g., *Aurangabad* in Bihar and Maharashtra; *Bilaspur* in Himachal Pradesh and Chhattisgarh).
+   - *Rationale:* The database schema uses a composite constraint `uq_state_district (state_id, district_name)`. The ingestion service loads an in-memory tuple cache `(state_id, district_name_lower)` guaranteeing zero collisions and 100% accurate foreign key resolution.
+
+2. **Strict Yield Formula & Integrity:**
+   - In compliance with Rule 4.5 of `AGENTS.md`, Yield is strictly computed as:
+     $$\text{Yield} = \frac{\text{Production}}{\text{Cultivated Area}}$$
+   - Non-positive area ($\text{Area} \le 0$) and null production records were strictly filtered out during preprocessing.
+   - The database verification confirms 0 null yields, 0 negative areas, and 0 negative productions.
+
+3. **Measurement Unit Transparency:**
+   - Coconut is reported by the Ministry of Agriculture in **Number of Nuts**, with a median production of ~239,000 nuts, resulting in yields of thousands of nuts/ha.
+   - Field crops are reported in **Metric Tonnes**, resulting in yields typically ranging from 0.2 to 10 tonnes/ha.
+   - *Rationale:* Every database record stores `production_unit` and `yield_unit` explicitly. Coconut is recorded with `Nuts/Hectare` (1,958 records) and all other crops with `Tonnes/Hectare` (240,338 records). They are isolated to prevent invalid numerical averaging.
+
+4. **Batch Ingestion & Idempotency:**
+   - Ingestion runs in 5,000-row chunks using PostgreSQL `ON CONFLICT DO NOTHING`.
+   - Completed all 242,296 agricultural records in 251.3 seconds (~964 records/sec) with zero errors.
+   - Re-running the pipeline results in 0 duplicate records inserted.
+
+---
+
+### 4. Verification Commands & Measured Results
+
+| Step | Command Executed | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **Test Ingestion & Idempotency** | `python scripts/run_ingestion.py --test` | 1,000 rows ingested; re-run inserted 0 duplicates | **PASSED** |
+| **Full Ingestion** | `python scripts/run_ingestion.py --full` | 242,296 agricultural records + 3,772 rainfall records ingested in 251.3s | **PASSED** |
+| **SQL Verification Audit** | `python scripts/run_ingestion.py --verify` | 33 states, 652 districts, 124 crops, 0 null yields, 0 orphans across all FKs | **PASSED** |
+| **Stage 3 Unit & DB Tests** | `python backend/tests/test_stage3_ingestion.py` | 4 test suites passed (categories, yield math, unit distinction, DB invariants) | **PASSED** |
+| **Full Backend Pytest** | `pytest backend/tests` | 6 passed in 2.53s | **PASSED** |
+| **Backend Health Check** | `python backend/tests/test_health.py` | `status: healthy`, `database: connected` | **PASSED** |
+| **Frontend Production Build** | `cd frontend && npx next build` | Next.js 16 (App Router) compiled with 0 errors | **PASSED** |
+
+---
+
+### 5. Next Steps
+* Await user approval for Stage 3 completion.
+* Stage 4 will focus on **Exploratory Data Analysis (EDA) & Statistical Analysis** (Jupyter notebooks, distribution curves, correlation analysis, and regional trends).

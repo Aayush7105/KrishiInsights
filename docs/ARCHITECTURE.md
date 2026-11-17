@@ -50,8 +50,8 @@ KrishiInsights adopts a modular monorepo pattern that cleanly separates the user
 [Official Sources: data.gov.in / NDAP / IMD]
                        │
                        ▼
-         datasets/raw/agriculture/crop_production.csv (15.3 MB)
-         datasets/raw/rainfall/rainfall.csv (524 KB)
+         datasets/raw/crop_production.csv (15.3 MB)
+         datasets/raw/rainfall.csv (524 KB)
                        │
                        ▼
          scripts/preprocess_data.py

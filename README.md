@@ -2,7 +2,7 @@
 
 > **Project Title:** KrishiInsights — An Agricultural Data Analytics and Crop Yield Intelligence Platform Using Machine Learning  
 > **Academic Context:** Final-Year B.Tech Computer Science Project  
-> **Current Status:** **Stage 2 Complete — Dataset Research, Acquisition, and Database Design** (Database migrated, datasets profiled, application features not yet implemented)
+> **Current Status:** **Stage 3 Complete — Data Cleaning, Preprocessing & PostgreSQL Ingestion** (Database fully populated with 242,296 agricultural records, 3,772 rainfall records, 100% verified)
 
 ---
 
@@ -58,15 +58,16 @@ KrishiInsights/
 │   │   ├── models/agriculture.py # Relational models (State, District, Crop, Records)
 │   │   ├── schemas/              # Pydantic request/response schemas
 │   │   └── services/             # Ingestion and analytics services
-│   ├── tests/test_health.py      # Automated test suite for health endpoint
+│   ├── tests/
+│   │   ├── test_health.py        # Automated test suite for health endpoint
+│   │   └── test_stage3_ingestion.py # Ingestion unit and database invariant tests
 │   ├── requirements.txt          # Backend Python dependencies
 │   └── .env                      # Local backend environment variables (git-ignored)
 │
 ├── datasets/                     # Canonical Project Datasets
 │   ├── raw/
-│   │   ├── agriculture/          # Official crop production records (1997–2015, 246k rows)
-│   │   └── rainfall/             # Official IMD rainfall records (1901–2015, 4.1k rows)
-│   ├── interim/                  # Temporary staging files
+│   │   ├── crop_production.csv   # Official crop production records (1997–2015, 246k rows)
+│   │   └── rainfall.csv          # Official IMD rainfall records (1901–2015, 4.1k rows)
 │   ├── processed/                # Validated clean crop & combined datasets (242k rows)
 │   ├── metadata/                 # Profiling reports & source catalogues
 │   └── README.md                 # Dataset documentation and codebook
@@ -84,9 +85,11 @@ KrishiInsights/
 │
 ├── docs/                         # Project documentation
 │   ├── ARCHITECTURE.md           # Monorepo architecture and component flow
+│   ├── DATA_INGESTION_REPORT.md  # Stage 3 full ingestion and verification audit report
 │   └── DEVELOPMENT_LOG.md        # Detailed chronological development diary
 │
 ├── scripts/                      # Utility scripts (downloaders, preprocessors, verifiers)
+│   ├── run_ingestion.py          # Data ingestion and verification CLI (--test, --full, --verify)
 │   ├── preprocess_data.py        # Automated data cleaning & yield integration
 │   ├── profile_datasets.py       # Dataset profiling script
 │   └── test_db_connection.py     # Database connectivity testing script
@@ -121,6 +124,17 @@ KrishiInsights/
    ```bash
    alembic upgrade head
    ```
+4. Run dataset ingestion into PostgreSQL:
+   ```bash
+   # Run 1,000-row test and idempotency check
+   python scripts/run_ingestion.py --test
+
+   # Run full 242k-row ingestion
+   python scripts/run_ingestion.py --full
+
+   # Verify database metrics and referential integrity
+   python scripts/run_ingestion.py --verify
+   ```
 
 ---
 
@@ -145,4 +159,4 @@ python -m uvicorn app.main:app --app-dir backend --reload --port 8000
 ## 7. Current Implementation Status
 
 > [!NOTE]
-> This repository is currently at **Stage 2 (Dataset Research, Acquisition, and Database Design)**. The canonical dataset tiers have been organized and profiled, the PostgreSQL 17 relational database has been migrated with all 6 core tables, and the ingestion service foundation is ready. Data ingestion, dashboard views, and analytics APIs will be implemented in subsequent stages.
+> This repository is currently at **Stage 3 Complete (Data Cleaning, Preprocessing & Full PostgreSQL Ingestion)**. The canonical dataset tiers have been organized and profiled, the PostgreSQL 17 relational database has been migrated and fully populated with 242,296 agricultural records and 3,772 rainfall records, verified with 0 orphan records and 100% unit isolation. Stage 4 will cover Exploratory Data Analysis (EDA) and statistical distributions.

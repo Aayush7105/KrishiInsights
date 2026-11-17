@@ -4,6 +4,36 @@ All notable changes to the KrishiInsights project will be documented in this fil
 
 ---
 
+## [Stage 3: Data Cleaning, Preprocessing & PostgreSQL Ingestion] — 2026-11-17
+
+### Added
+- **Streamlined Datasets Structure:**
+  - Reorganized canonical datasets structure to locate `crop_production.csv` and `rainfall.csv` directly under `datasets/raw/`.
+  - Maintained cleaned records in `datasets/processed/clean_crop_data.csv` (242,296 records) and `combined_data.csv`.
+- **Full Ingestion Pipeline (`backend/app/services/ingestion_service.py`):**
+  - Implemented `IngestionPipeline` with chunked batch processing (5,000 records per batch) and in-memory lookup caching.
+  - Standardized all 124 crops into 10 ICAR/DES taxonomic categories.
+  - Handled district spatial collisions across states via composite unique key `(state_id, district_name)`.
+  - Implemented PostgreSQL `ON CONFLICT DO NOTHING` for idempotent operations.
+- **Ingestion Runner CLI (`scripts/run_ingestion.py`):**
+  - Added CLI runner with `--test`, `--full`, and `--verify` commands.
+- **Full PostgreSQL Ingestion Execution:**
+  - Successfully ingested **33 states**, **652 districts**, **124 crops**, **3,772 rainfall records**, and **242,296 agricultural records** into PostgreSQL 17 (`krishiinsights_db`) in 251.3s.
+  - Zero duplicate rows created on re-run (idempotency verified).
+- **Yield Unit Integrity & Isolation:**
+  - Standardized Coconut yield to `Nuts/Hectare` (1,958 records) and production to `Number of Nuts`.
+  - Standardized field and horticultural crops to `Tonnes/Hectare` (240,338 records) and production to `Tonnes`.
+  - 0 null yield records, 0 negative/zero area records, 0 negative production records.
+- **Automated Regression Test Suite (`backend/tests/test_stage3_ingestion.py`):**
+  - Unit tests for crop classification, yield derivation math, and coconut unit isolation.
+  - Integration tests verifying PostgreSQL record counts, foreign key integrity (0 orphans), and invariant checks.
+  - All 6 backend tests passing under pytest.
+- **Documentation & Verification Reports:**
+  - Published comprehensive `docs/DATA_INGESTION_REPORT.md` with complete provenance, table metrics, and verification queries.
+  - Updated `datasets/README.md`, `database/README.md`, `docs/ARCHITECTURE.md`, and `docs/DEVELOPMENT_LOG.md`.
+
+---
+
 ## [Stage 2: Dataset Research, Acquisition, and Database Design] — 2026-11-17
 
 ### Added

@@ -3,8 +3,8 @@ import json
 import pandas as pd
 import numpy as np
 
-RAW_CROP = os.path.join("datasets", "raw", "agriculture", "crop_production.csv")
-RAW_RAIN = os.path.join("datasets", "raw", "rainfall", "rainfall.csv")
+RAW_CROP = os.path.join("datasets", "raw", "crop_production.csv")
+RAW_RAIN = os.path.join("datasets", "raw", "rainfall.csv")
 META_DIR = os.path.join("datasets", "metadata")
 os.makedirs(META_DIR, exist_ok=True)
 
@@ -170,7 +170,7 @@ Generated as part of **Stage 2: Dataset Research, Acquisition, and Database Desi
 
 ## 2. Agricultural Crop Dataset Profile
 
-* **File Location:** `datasets/raw/agriculture/crop_production.csv`
+* **File Location:** `datasets/raw/crop_production.csv`
 * **Source Lineage:** Directorate of Economics and Statistics (DES), Ministry of Agriculture & Farmers Welfare via data.gov.in & NDAP.
 * **Attributes:** `State_Name`, `District_Name`, `Crop_Year`, `Season`, `Crop`, `Area`, `Production`.
 * **Distinct Entities:**
@@ -191,7 +191,7 @@ Generated as part of **Stage 2: Dataset Research, Acquisition, and Database Desi
 
 ## 3. Rainfall Dataset Profile
 
-* **File Location:** `datasets/raw/rainfall/rainfall.csv`
+* **File Location:** `datasets/raw/rainfall.csv`
 * **Source Lineage:** India Meteorological Department (IMD) / mausam.imd.gov.in via data.gov.in.
 * **Attributes:** `SUBDIVISION`, `YEAR`, `JAN`–`DEC`, `ANNUAL`, `Jan-Feb`, `Mar-May`, `Jun-Sep`, `Oct-Dec`.
 * **Granularity & Alignment:**

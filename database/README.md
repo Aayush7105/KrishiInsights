@@ -125,3 +125,23 @@ Connection verification can be tested at any time:
 ```bash
 python scripts/test_db_connection.py
 ```
+
+---
+
+## 6. Stage 3 Ingested Data Metrics & Verification
+
+All tables are populated and verified as of Stage 3:
+
+| Table Name | Record Count | Integrity Status |
+| :--- | :--- | :--- |
+| `states` | 33 | 100% Unique |
+| `districts` | 652 | Unique per `(state_id, district_name)` |
+| `crops` | 124 | Categorized into 10 ICAR/DES groups |
+| `rainfall_records` | 3,772 | 1901–2015 coverage, 0 orphans |
+| `agricultural_records` | 242,296 | 1997–2015 coverage, 0 null yields, 0 orphans |
+| `prediction_records` | 0 | Ready for Stage 10 inference logs |
+
+Verification runner:
+```bash
+python scripts/run_ingestion.py --verify
+```

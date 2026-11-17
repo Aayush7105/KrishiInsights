@@ -9,14 +9,11 @@ This directory stores the official, cleaned, and integrated datasets powering **
 ```text
 datasets/
 ├── raw/
-│   ├── agriculture/
-│   │   └── crop_production.csv      # Official district crop production records (1997–2015)
-│   └── rainfall/
-│       └── rainfall.csv             # IMD subdivision-wise rainfall records (1901–2015)
-├── interim/                         # Staging area for partition transformations (.gitkeep)
+│   ├── crop_production.csv      # Official district crop production records (1997–2015)
+│   └── rainfall.csv             # IMD subdivision-wise rainfall records (1901–2015)
 ├── processed/
-│   ├── clean_crop_data.csv          # Cleaned crop production records with calculated yield (242,296 records)
-│   └── combined_data.csv            # Integrated crop and season-matched rainfall dataset (242,296 records)
+│   ├── clean_crop_data.csv      # Cleaned crop production records with calculated yield (242,296 records)
+│   └── combined_data.csv        # Integrated crop and season-matched rainfall dataset (242,296 records)
 ├── metadata/
 │   ├── crop_production_profile.json # Structural & quality profile for crop data
 │   ├── rainfall_profile.json        # Structural & quality profile for rainfall data
@@ -41,7 +38,7 @@ datasets/
 
 ## 3. Dataset Specifications & Attributes
 
-### 3.1 Raw Crop Production (`datasets/raw/agriculture/crop_production.csv`)
+### 3.1 Raw Crop Production (`datasets/raw/crop_production.csv`)
 * **Total Rows**: 246,091 | **File Size**: 15.3 MB | **Format**: CSV
 * **Attributes**:
   * `State_Name` (string): State or Union Territory name (33 states/UTs)
@@ -52,7 +49,7 @@ datasets/
   * `Area` (float): Cultivated land area in **Hectares**
   * `Production` (float): Output volume (**Metric Tonnes** for field crops, **Number of Nuts** for Coconut)
 
-### 3.2 Raw Rainfall (`datasets/raw/rainfall/rainfall.csv`)
+### 3.2 Raw Rainfall (`datasets/raw/rainfall.csv`)
 * **Total Rows**: 4,116 | **File Size**: 524 KB | **Format**: CSV
 * **Attributes**:
   * `SUBDIVISION` (string): 36 IMD meteorological subdivisions
