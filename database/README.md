@@ -114,11 +114,13 @@ alembic downgrade -1
 The application reads `DATABASE_URL` dynamically from the environment. Credentials are never hardcoded.
 
 ```env
-# Local Development (PostgreSQL 17)
+# Local Development (PostgreSQL 17 - Default)
 DATABASE_URL=postgresql+psycopg2://krishiinsights_user:<password>@localhost:5432/krishiinsights_db
 
-# Hosted Production (Example)
-# DATABASE_URL=postgresql+psycopg2://<user>:<password>@<host>:5432/<dbname>?sslmode=require
+# Hosted Production (Neon Serverless Postgres)
+# Toggle USE_NEON=true in .env to use Neon credentials from .env.local without changing code
+USE_NEON=true
+# DATABASE_URL=postgresql+psycopg2://<user>:<password>@<neon-endpoint>.neon.tech/<dbname>?sslmode=require
 ```
 
 Connection verification can be tested at any time:

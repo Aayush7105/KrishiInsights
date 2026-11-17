@@ -285,3 +285,16 @@ Execute Stage 3 strictly per `AGENTS.md` and the Stage 3 Specification:
 ### 5. Next Steps
 * Await user approval for Stage 3 completion.
 * Stage 4 will focus on **Exploratory Data Analysis (EDA) & Statistical Analysis** (Jupyter notebooks, distribution curves, correlation analysis, and regional trends).
+
+---
+
+## Infrastructure Note: Neon Cloud PostgreSQL Project Linking & Agent Tooling (November 17, 2026)
+
+### 1. Scope & Execution
+* Linked the KrishiInsights repository to an existing Neon Serverless PostgreSQL project (`morning-glitter-97393312`) under organization `org-steep-leaf-69533238`.
+* Configured Neon CLI 9.6.0 with user-level and project-level agent skills for Antigravity (`neon`, `neon-ai-gateway`, `neon-auth`, `neon-functions`, `neon-object-storage`, `neon-postgres`, `neon-realtime`).
+* Configured hosted Neon MCP Server at `C:\Users\aayus\.gemini\config\mcp_config.json`.
+* Populated branch environment variables into `.env.local` (excluded from git via `.gitignore`).
+* Maintained local PostgreSQL development configuration in `backend/.env` untouched.
+* Enhanced `backend/app/core/config.py` with dynamic SQLAlchemy dialect normalization (`postgresql://` -> `postgresql+psycopg2://`) and seamless `USE_NEON=true` environment toggling.
+* Verified that zero database migrations, schema mutations, or table truncations were run on either database.
