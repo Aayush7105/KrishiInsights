@@ -16,8 +16,8 @@ import sys
 import numpy as np
 import pandas as pd
 
-RAW_CROP_PATH = os.path.join("datasets", "raw", "crop_production.csv")
-RAW_RAIN_PATH = os.path.join("datasets", "raw", "rainfall.csv")
+RAW_CROP_PATH = os.path.join("datasets", "raw", "agriculture", "crop_production.csv")
+RAW_RAIN_PATH = os.path.join("datasets", "raw", "rainfall", "rainfall.csv")
 PROCESSED_DIR = os.path.join("datasets", "processed")
 CLEAN_CROP_PATH = os.path.join(PROCESSED_DIR, "clean_crop_data.csv")
 COMBINED_PATH = os.path.join(PROCESSED_DIR, "combined_data.csv")

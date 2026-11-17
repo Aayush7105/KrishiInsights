@@ -126,3 +126,88 @@ Establish the foundational monorepo structure, development environment, and init
 ### 5. Final Test Results
 * `python backend/tests/test_health.py`: **PASSED** (Exit code 0, health endpoint and OpenAPI paths verified).
 * `cd frontend && npx next build`: **PASSED** (Exit code 0, 4/4 static pages prerendered successfully with zero errors).
+
+
+---
+
+## Session: 2026-11-17 — Stage 2: Dataset Research, Acquisition, and Database Design
+
+### 1. Objective
+Establish an authentic agricultural and rainfall dataset foundation, perform data profiling, enforce canonical dataset organization, design a PostgreSQL relational schema reflecting real dataset structures, apply Alembic migrations, and prepare ingestion foundations without starting application feature development prematurely.
+
+---
+
+### 2. Dataset Research & Selection Evaluation
+
+* **Selected Agricultural Dataset:**
+  - *Title:* Crop Production in India (1997–2015).
+  - *Authority:* Directorate of Economics & Statistics (DES), Ministry of Agriculture & Farmers Welfare, Government of India.
+  - *Portals:* [data.gov.in](https://www.data.gov.in/) & [NDAP (NITI Aayog)](https://ndap.niti.gov.in/).
+  - *Coverage:* 33 States/UTs, 646 Districts, 124 Crops, 1997–2015 (246,091 records).
+  - *Selection Rationale:* Highest spatial granularity (district-level), comprehensive multi-season tracking (`Kharif`, `Rabi`, `Summer`, `Autumn`, `Winter`), and official government lineage.
+* **Selected Meteorological Dataset:**
+  - *Title:* Subdivision-wise Historical Rainfall (1901–2015).
+  - *Authority:* India Meteorological Department (IMD), Ministry of Earth Sciences.
+  - *Portals:* [mausam.imd.gov.in](https://mausam.imd.gov.in/) & data.gov.in.
+  - *Coverage:* 36 Meteorological Subdivisions, 1901–2015, monthly & seasonal precipitation (4,116 records).
+  - *Selection Rationale:* Official meteorological authority in India, contiguous historical timeline overlapping 100% of the crop production dataset years (1997–2015).
+* **Rejected Data Sources:**
+  - Synthetic / Mock Kaggle datasets lacking government provenance.
+  - Station-level daily precipitation datasets (unnecessary gigabyte overhead for annual/seasonal crop yield modeling at this stage).
+
+---
+
+### 3. Canonical Dataset Storage Reorganization
+
+* **Hash Verification:** Verified SHA-256 checksums across `datasets/` and `ml/data/` (100% identical byte-for-byte content).
+* **Canonical Directory:** Restructured root `datasets/` as the single canonical location:
+  - `datasets/raw/agriculture/crop_production.csv` (15.3 MB)
+  - `datasets/raw/rainfall/rainfall.csv` (524 KB)
+  - `datasets/processed/clean_crop_data.csv` (22.6 MB, 242,296 records)
+  - `datasets/processed/combined_data.csv` (32.8 MB, 242,296 records)
+  - `datasets/metadata/` (JSON profiling reports & Markdown data dictionary)
+* **ML Deduplication:** Removed duplicate 71 MB files from `ml/data/`, replacing them with `ml/data/README.md` directing ML pipelines to read from `datasets/`.
+
+---
+
+### 4. Data Quality & Profiling Findings
+
+Executed `scripts/profile_datasets.py`:
+1. **Missing Production:** 3,730 records (1.52%) in raw crop data had null production values and were excluded from yield calculation.
+2. **Cultivated Area Integrity:** Filtered non-positive area records (`Area <= 0`) to prevent division by zero in yield derivation ($\text{Yield} = \text{Production} / \text{Area}$).
+3. **Unit Distinction (Coconut Anomaly):** Coconut production is officially reported in **Number of Nuts** (median ~239,000 nuts), while field crops are reported in **Metric Tonnes**. Handled by explicit unit columns (`Production_Unit`, `Yield_Unit`).
+4. **Spatial Aggregation:** IMD's 36 subdivisions were mapped deterministically to 33 states/UTs to enable clean state-level integration without creating false district-level claims.
+
+---
+
+### 5. PostgreSQL Database Design & Migration
+
+* **Configuration:**
+  - Local database: `krishiinsights_db`, user: `krishiinsights_user`, port: `5432`.
+  - Credentials stored safely in `backend/.env` (excluded from Git).
+  - Portability: `DATABASE_URL` is environment-driven, enabling seamless transition to hosted cloud instances (Supabase, Neon, AWS RDS) without code changes.
+* **SQLAlchemy Models (`backend/app/models/agriculture.py`):**
+  - `State`, `District`, `Crop`, `AgriculturalRecord`, `RainfallRecord`, `PredictionRecord`.
+  - Enforced foreign keys, cascading constraints, and composite uniqueness (`uq_state_district`, `uq_agri_record`, `uq_state_year_rainfall`).
+* **Alembic Migration:**
+  - Configured `alembic.ini` and `database/migrations/env.py`.
+  - Created migration revision: `001_initial_schema.py`.
+  - Executed migration: `alembic upgrade head`.
+  - Verified in PostgreSQL: All 6 tables and indexes confirmed active.
+* **Ingestion Foundation (`backend/app/services/ingestion_service.py`):**
+  - Created `IngestionManager` with reference lookup caching and row validation.
+  - Dry run on 1,000 crop records: 994 valid, 6 skipped (cleanly flagged missing production).
+
+---
+
+### 6. Verification Commands & Results
+
+| Step | Command Executed | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **PostgreSQL Connection** | `python scripts/test_db_connection.py` | Connected to PostgreSQL 17.12 as `krishiinsights_user` on `krishiinsights_db` | **PASSED** |
+| **Dataset Profiling** | `python scripts/profile_datasets.py` | Generated JSON profiles and markdown summaries in `datasets/metadata/` | **PASSED** |
+| **Alembic Migration** | `alembic upgrade head` | Applied `001_initial_schema` with transactional DDL | **PASSED** |
+| **Table Inspection** | `python -c "inspect(engine)..."` | 6 tables verified in PostgreSQL (`states`, `districts`, `crops`, `agricultural_records`, `rainfall_records`, `prediction_records`) | **PASSED** |
+| **Ingestion Dry Run** | `python -c "mgr.dry_run_crop_file(...)"` | Tested 1,000 records: 994 valid, 6 skipped | **PASSED** |
+| **Backend Health Test** | `python backend/tests/test_health.py` | Health test passed; routes verified | **PASSED** |
+| **Frontend Production Build** | `cd frontend && npx next build` | Compiled and verified with 0 errors | **PASSED** |

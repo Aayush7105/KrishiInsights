@@ -1,37 +1,127 @@
 # Database Architecture & Management (`database/`)
 
-This directory is reserved for database migration scripts, initial DDL schemas, and seed automation for **KrishiInsights**.
+This directory documents the relational schema, migration management, and connection configuration for **KrishiInsights**.
 
 ---
 
-## 1. Planned Database Technology
+## 1. Database Technology Stack
 
-* **Primary Database Engine:** PostgreSQL 15+
-* **ORM & Database Toolkit:** SQLAlchemy 2.x
-* **Migration Management:** Alembic
-* **Connection Pooling:** SQLAlchemy `QueuePool` with asynchronous or synchronous connection handling via environment variables.
+* **Database Engine:** PostgreSQL 17 (Local development port: 5432, database: `krishiinsights_db`, user: `krishiinsights_user`).
+* **Object-Relational Mapping (ORM):** SQLAlchemy 2.x
+* **Migration Management:** Alembic 1.20+
+* **Driver:** `psycopg2-binary` (PostgreSQL standard binary driver)
+* **Design Philosophy:** Environment-based configuration allowing zero-downtime switching between local PostgreSQL and hosted cloud instances (e.g. Supabase, AWS RDS, Neon) without application code changes.
 
 ---
 
-## 2. Directory Layout
+## 2. Relational Schema & Entity-Relationship Design
+
+The schema is implemented in `backend/app/models/agriculture.py` and reflected in migration `001_initial_schema`:
 
 ```text
-database/
-├── migrations/            # Version-controlled schema migration scripts (managed via Alembic)
-│   └── versions/          # Individual timestamped migration versions
-└── README.md              # Database architectural strategy and connection guidelines
+┌─────────────────┐       ┌─────────────────┐
+│     states      │       │      crops      │
+├─────────────────┤       ├─────────────────┤
+│ id (PK)         │◄──┐   │ id (PK)         │◄──┐
+│ state_name      │   │   │ crop_name       │   │
+│ source_code     │   │   │ crop_category   │   │
+└────────┬────────┘   │   └────────┬────────┘   │
+         │ 1          │            │ 1          │
+         │            │            │            │
+         ▼ N          │            │            │
+┌─────────────────┐   │            │            │
+│    districts    │   │            │            │
+├─────────────────┤   │            │            │
+│ id (PK)         │   │            │            │
+│ state_id (FK)   │   │            │            │
+│ district_name   │   │            │            │
+│ source_code     │   │            │            │
+└────────┬────────┘   │            │            │
+         │ 1          │            │            │
+         │            │            │            │
+         ▼ N          │ N          ▼ N          │ N
+┌─────────────────────┴────────────┴────────────┴───┐
+│               agricultural_records                │
+├───────────────────────────────────────────────────┤
+│ id (PK)                                           │
+│ state_id (FK -> states.id)                        │
+│ district_id (FK -> districts.id)                  │
+│ crop_id (FK -> crops.id)                          │
+│ season                                            │
+│ year                                              │
+│ area (Hectares)                                   │
+│ production (Tonnes / Nuts)                        │
+│ yield_amount (Tonnes/Ha or Nuts/Ha)               │
+│ area_unit, production_unit, yield_unit            │
+└───────────────────────────────────────────────────┘
+
+┌─────────────────┐       ┌───────────────────────┐
+│ rainfall_records│       │  prediction_records   │
+├─────────────────┤       ├───────────────────────┤
+│ id (PK)         │       │ id (PK)               │
+│ state_id (FK)   │       │ input_features (JSON) │
+│ year            │       │ predicted_yield       │
+│ annual_rainfall │       │ unit                  │
+│ monsoon_rainfall│       │ model_name            │
+│ rabi_rainfall   │       │ model_version         │
+│ source_id (IMD) │       │ created_at            │
+└─────────────────┘       └───────────────────────┘
 ```
 
 ---
 
-## 3. Configuration & Strategy
+## 3. Key Constraints & Optimization
 
-1. **Decoupled Credentials:** Database connection strings are never committed to version control. They are injected via `DATABASE_URL` in the environment configuration (`.env`).
-2. **Schema Design (Stage 2/3):** The relational schema will be defined after dataset verification, implementing:
-   * `states`: State identifiers and administrative names.
-   * `districts`: District entities linked to states via foreign keys.
-   * `crops`: Normalized crop entities and classification categories.
-   * `agricultural_records`: Granular production, cultivated area, and computed yield records.
-   * `rainfall_records`: IMD subdivision and state-level historical precipitation.
-   * `prediction_records`: Historical audit log of user yield prediction queries.
-3. **Indexes:** Optimized B-tree indexes will be established on frequently queried dimensions (`state_id`, `district_id`, `crop_id`, `year`, `season`).
+1. **Foreign Key Integrity:**
+   * `districts.state_id` $\rightarrow$ `states.id` (with `ON DELETE CASCADE`).
+   * `agricultural_records.state_id` $\rightarrow$ `states.id`.
+   * `agricultural_records.district_id` $\rightarrow$ `districts.id`.
+   * `agricultural_records.crop_id` $\rightarrow$ `crops.id`.
+   * `rainfall_records.state_id` $\rightarrow$ `states.id`.
+2. **Composite Uniqueness Constraints:**
+   * `districts`: `(state_id, district_name)` ensures no duplicate district names within a state.
+   * `agricultural_records`: `(state_id, district_id, crop_id, season, year)` prevents duplicate crop observation ingestion.
+   * `rainfall_records`: `(state_id, year)` guarantees a single state-aggregated rainfall metric per year.
+3. **B-Tree Indexing Strategy:**
+   * High-cardinality search columns: `states.state_name`, `districts.district_name`, `crops.crop_name`.
+   * Multi-dimensional filtering columns: `agricultural_records.year`, `agricultural_records.season`, `agricultural_records.yield_amount`.
+   * Query foreign keys: `agricultural_records.state_id`, `agricultural_records.district_id`, `agricultural_records.crop_id`.
+
+---
+
+## 4. Migration & Management Instructions
+
+Migrations are version-controlled via Alembic at the root of the project:
+
+```bash
+# Check current migration revision
+alembic current
+
+# Run migrations to latest schema (online)
+alembic upgrade head
+
+# Generate SQL DDL without applying (offline preview)
+alembic upgrade head --sql
+
+# Rollback one migration
+alembic downgrade -1
+```
+
+---
+
+## 5. Connection Configuration
+
+The application reads `DATABASE_URL` dynamically from the environment. Credentials are never hardcoded.
+
+```env
+# Local Development (PostgreSQL 17)
+DATABASE_URL=postgresql+psycopg2://krishiinsights_user:<password>@localhost:5432/krishiinsights_db
+
+# Hosted Production (Example)
+# DATABASE_URL=postgresql+psycopg2://<user>:<password>@<host>:5432/<dbname>?sslmode=require
+```
+
+Connection verification can be tested at any time:
+```bash
+python scripts/test_db_connection.py
+```

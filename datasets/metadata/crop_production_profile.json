@@ -1,0 +1,126 @@
+{
+  "dataset_name": "Crop Production in India (1997-2015)",
+  "file_name": "crop_production.csv",
+  "file_size_bytes": 15316741,
+  "total_rows": 246091,
+  "total_columns": 7,
+  "columns": [
+    "State_Name",
+    "District_Name",
+    "Crop_Year",
+    "Season",
+    "Crop",
+    "Area",
+    "Production"
+  ],
+  "data_types": {
+    "State_Name": "str",
+    "District_Name": "str",
+    "Crop_Year": "int64",
+    "Season": "str",
+    "Crop": "str",
+    "Area": "float64",
+    "Production": "float64"
+  },
+  "missing_values": {
+    "State_Name": 0,
+    "District_Name": 0,
+    "Crop_Year": 0,
+    "Season": 0,
+    "Crop": 0,
+    "Area": 0,
+    "Production": 3730
+  },
+  "missing_percentages": {
+    "State_Name": 0.0,
+    "District_Name": 0.0,
+    "Crop_Year": 0.0,
+    "Season": 0.0,
+    "Crop": 0.0,
+    "Area": 0.0,
+    "Production": 1.516
+  },
+  "duplicate_rows": 0,
+  "geography": {
+    "states_count": 33,
+    "states_list": [
+      "Andaman and Nicobar Islands",
+      "Andhra Pradesh",
+      "Arunachal Pradesh",
+      "Assam",
+      "Bihar",
+      "Chandigarh",
+      "Chhattisgarh",
+      "Dadra and Nagar Haveli",
+      "Goa",
+      "Gujarat",
+      "Haryana",
+      "Himachal Pradesh",
+      "Jammu and Kashmir ",
+      "Jharkhand",
+      "Karnataka",
+      "Kerala",
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Manipur",
+      "Meghalaya",
+      "Mizoram",
+      "Nagaland",
+      "Odisha",
+      "Puducherry",
+      "Punjab",
+      "Rajasthan",
+      "Sikkim",
+      "Tamil Nadu",
+      "Telangana ",
+      "Tripura",
+      "Uttar Pradesh",
+      "Uttarakhand",
+      "West Bengal"
+    ],
+    "districts_count": 646
+  },
+  "crops": {
+    "total_crops": 124,
+    "sample_crops": [
+      "Apple",
+      "Arcanut (Processed)",
+      "Arecanut",
+      "Arhar/Tur",
+      "Ash Gourd",
+      "Atcanut (Raw)",
+      "Bajra",
+      "Banana",
+      "Barley",
+      "Bean",
+      "Beans & Mutter(Vegetable)",
+      "Beet Root",
+      "Ber",
+      "Bhindi",
+      "Bitter Gourd"
+    ]
+  },
+  "seasons": [
+    "Autumn",
+    "Kharif",
+    "Rabi",
+    "Summer",
+    "Whole Year",
+    "Winter"
+  ],
+  "year_range": [
+    1997,
+    2015
+  ],
+  "validation_findings": {
+    "non_positive_area_count": 0,
+    "negative_production_count": 0,
+    "missing_production_count": 3730,
+    "unit_anomalies": {
+      "coconut_crops_measured_in_nuts": true,
+      "coconut_records_count": 1985,
+      "coconut_median_production": 239156.5,
+      "field_crops_measured_in_tonnes": true
+    }
+  }
+}

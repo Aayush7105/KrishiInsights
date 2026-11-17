@@ -1,0 +1,38 @@
+[
+  {
+    "id": "DES_DATA_GOV_IN",
+    "name": "Crop Production Statistics in India",
+    "source_authority": "Directorate of Economics and Statistics (DES), Ministry of Agriculture & Farmers Welfare",
+    "portals": [
+      "https://www.data.gov.in/",
+      "https://ndap.niti.gov.in/"
+    ],
+    "coverage_years": "1997 - 2015",
+    "geography": "District and State level across India",
+    "license": "Government Open Data License - India (GODL-India) / NDSAP",
+    "units": {
+      "Area": "Hectares",
+      "Production": "Metric Tonnes (except Coconut which is Number of Nuts)",
+      "Yield": "Calculated (Tonnes/Hectare for field crops; Nuts/Hectare for Coconut)"
+    },
+    "status": "Acquired and Profiled"
+  },
+  {
+    "id": "IMD_MAUSAM",
+    "name": "Subdivision-wise Historical Rainfall",
+    "source_authority": "India Meteorological Department (IMD), Ministry of Earth Sciences",
+    "portals": [
+      "https://mausam.imd.gov.in/",
+      "https://www.data.gov.in/"
+    ],
+    "coverage_years": "1901 - 2015",
+    "geography": "36 Meteorological Subdivisions across India",
+    "license": "Public Open Government Data",
+    "units": {
+      "Monthly_Rainfall": "Millimetres (mm)",
+      "Annual_Rainfall": "Millimetres (mm)",
+      "Seasonal_Rainfall": "Millimetres (mm)"
+    },
+    "status": "Acquired and Profiled"
+  }
+]

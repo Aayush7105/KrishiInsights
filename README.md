@@ -2,7 +2,7 @@
 
 > **Project Title:** KrishiInsights — An Agricultural Data Analytics and Crop Yield Intelligence Platform Using Machine Learning  
 > **Academic Context:** Final-Year B.Tech Computer Science Project  
-> **Current Status:** **Stage 1 Complete — Project Initialization & Environment Setup** (Application features not yet implemented)
+> **Current Status:** **Stage 2 Complete — Dataset Research, Acquisition, and Database Design** (Database migrated, datasets profiled, application features not yet implemented)
 
 ---
 
@@ -29,7 +29,7 @@ The platform's primary purpose is to empower researchers, policymakers, and agri
 | :--- | :--- | :--- |
 | **Frontend** | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS | Responsive UI, interactive dashboards, dynamic routing |
 | **Backend API** | Python 3.15, FastAPI, Pydantic | High-performance asynchronous REST API, validation, routing |
-| **Database** | PostgreSQL, SQLAlchemy 2.x | Relational storage for structured agricultural and rainfall records |
+| **Database** | PostgreSQL 17, SQLAlchemy 2.x, Alembic 1.20 | Relational storage for structured agricultural and rainfall records |
 | **Data & ML** | Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Joblib | Data processing, statistical analytics, regression pipelines |
 | **Tooling** | Git, Postman, ReportLab | Version control, endpoint testing, report generation |
 
@@ -45,59 +45,53 @@ KrishiInsights/
 │   │       ├── layout.tsx        # Root layout with Tailwind CSS
 │   │       ├── page.tsx          # Initial KrishiInsights landing view
 │   │       └── globals.css       # Global styles
-│   ├── public/                   # Static web assets
 │   ├── package.json              # Frontend scripts & dependencies
 │   ├── tsconfig.json             # TypeScript configuration (@/* alias)
 │   └── next.config.ts            # Next.js runtime configuration
 │
 ├── backend/                      # FastAPI Python REST API
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py               # FastAPI entrypoint & CORS configuration
-│   │   ├── api/
-│   │   │   ├── __init__.py
-│   │   │   └── routes/
-│   │   │       ├── __init__.py
-│   │   │       └── health.py     # Health check endpoint (/api/health)
-│   │   ├── core/
-│   │   │   ├── __init__.py
-│   │   │   └── config.py         # Application settings
-│   │   ├── models/               # Future ORM models
-│   │   ├── schemas/              # Future Pydantic request/response schemas
-│   │   ├── services/             # Future business and analytics services
-│   │   └── utils/                # Helper utilities
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   └── test_health.py        # Automated test suite for health endpoint
+│   │   ├── main.py               # FastAPI app & CORS configuration
+│   │   ├── api/routes/health.py  # Health check endpoint (/api/health)
+│   │   ├── core/config.py        # Environment & database configuration
+│   │   ├── database/             # SQLAlchemy engine, session maker, and Base
+│   │   ├── models/agriculture.py # Relational models (State, District, Crop, Records)
+│   │   ├── schemas/              # Pydantic request/response schemas
+│   │   └── services/             # Ingestion and analytics services
+│   ├── tests/test_health.py      # Automated test suite for health endpoint
 │   ├── requirements.txt          # Backend Python dependencies
-│   └── .env                      # Local backend environment variables
+│   └── .env                      # Local backend environment variables (git-ignored)
+│
+├── datasets/                     # Canonical Project Datasets
+│   ├── raw/
+│   │   ├── agriculture/          # Official crop production records (1997–2015, 246k rows)
+│   │   └── rainfall/             # Official IMD rainfall records (1901–2015, 4.1k rows)
+│   ├── interim/                  # Temporary staging files
+│   ├── processed/                # Validated clean crop & combined datasets (242k rows)
+│   ├── metadata/                 # Profiling reports & source catalogues
+│   └── README.md                 # Dataset documentation and codebook
 │
 ├── ml/                           # Data Science & Machine Learning module
-│   ├── data/
-│   │   ├── raw/                  # Sourced raw datasets (crop_production.csv, rainfall.csv)
-│   │   ├── interim/              # Intermediate transformations
-│   │   └── processed/            # Cleaned, standardized, merged records
+│   ├── data/                     # References canonical datasets/ via config
 │   ├── notebooks/                # Jupyter EDA and model experiment notebooks
-│   ├── src/
-│   │   ├── data/                 # Ingestion & cleaning logic
-│   │   ├── features/             # Feature transformers
-│   │   ├── models/               # Estimators and regression training
-│   │   └── visualization/        # Analytical chart generators
+│   ├── src/                      # Feature engineering & ML scripts
 │   ├── artifacts/                # Serialized model pipelines (.joblib)
-│   ├── reports/                  # Evaluation summaries and figures
 │   └── requirements.txt          # ML-specific Python dependencies
 │
 ├── database/                     # Relational database migrations & DDL
 │   ├── migrations/               # Alembic versioned schema migrations
-│   └── README.md                 # Database strategy and connection guide
+│   └── README.md                 # Database schema design & documentation
 │
 ├── docs/                         # Project documentation
 │   ├── ARCHITECTURE.md           # Monorepo architecture and component flow
 │   └── DEVELOPMENT_LOG.md        # Detailed chronological development diary
 │
-├── scripts/                      # Utility scripts (downloaders, preprocessors)
-│   └── preprocess_data.py        # Automated data cleaning & yield integration
+├── scripts/                      # Utility scripts (downloaders, preprocessors, verifiers)
+│   ├── preprocess_data.py        # Automated data cleaning & yield integration
+│   ├── profile_datasets.py       # Dataset profiling script
+│   └── test_db_connection.py     # Database connectivity testing script
 │
+├── alembic.ini                   # Alembic configuration pointing to database/migrations
 ├── .env.example                  # Environment variable template
 ├── .gitignore                    # Version control exclusion rules
 ├── CHANGELOG.md                  # Project versioning and milestone log
@@ -106,52 +100,49 @@ KrishiInsights/
 
 ---
 
-## 4. Prerequisites
+## 4. Official Data Sources & Coverage
 
-* **Node.js:** v18.0.0 or higher (v24.18.0 detected)
-* **npm:** v9.0.0 or higher (11.16.0 detected)
-* **Python:** v3.11 or higher (3.15.2 detected)
-* **Git:** Version control installed
+* **Crop Production Statistics (1997–2015):** Directorate of Economics and Statistics (DES), Ministry of Agriculture and Farmers Welfare ([data.gov.in](https://www.data.gov.in/) & [NDAP, NITI Aayog](https://ndap.niti.gov.in/)). Covers 33 States/UTs, 646 Districts, 124 Crops.
+* **Meteorological Precipitation (1901–2015):** India Meteorological Department ([IMD Mausam](https://mausam.imd.gov.in/)). Covers 36 Meteorological Subdivisions across India.
 
 ---
 
-## 5. Setup & Running Instructions
+## 5. Database Configuration & Setup
 
-### 5.1 Frontend (Next.js)
+1. Copy `.env.example` to `backend/.env` (or configure your environment variables):
+   ```bash
+   DATABASE_URL=postgresql+psycopg2://krishiinsights_user:<password>@localhost:5432/krishiinsights_db
+   ```
+2. Test database connectivity:
+   ```bash
+   python scripts/test_db_connection.py
+   ```
+3. Run schema migrations via Alembic:
+   ```bash
+   alembic upgrade head
+   ```
 
+---
+
+## 6. How to Run Frontend and Backend
+
+### 6.1 Frontend (Next.js)
 ```bash
-# Navigate to frontend directory
 cd frontend
-
-# Run the development server
 npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-To verify a production build:
-```bash
-npm run build
+# Browser: http://localhost:3000
 ```
 
-### 5.2 Backend API (FastAPI)
-
+### 6.2 Backend (FastAPI)
 ```bash
-# From project root, activate virtual environment or use Python
-# Run the FastAPI server via Uvicorn
 python -m uvicorn app.main:app --app-dir backend --reload --port 8000
-```
-Interactive API documentation will be available at:
-* Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
-* Health Check: [http://localhost:8000/api/health](http://localhost:8000/api/health)
-
-To run backend tests:
-```bash
-python backend/tests/test_health.py
+# Docs: http://localhost:8000/docs
+# Health Check: http://localhost:8000/api/health
 ```
 
 ---
 
-## 6. Current Implementation Status
+## 7. Current Implementation Status
 
 > [!NOTE]
-> This repository is currently at **Stage 1 (Project Initialization and Environment Setup)**. The monorepo architecture, Next.js frontend skeleton, modular FastAPI backend, ML workspace structure, database layout, and environment configuration have been established and verified. Application features (interactive dashboards, filtering, ML yield models) will be implemented in subsequent stages.
+> This repository is currently at **Stage 2 (Dataset Research, Acquisition, and Database Design)**. The canonical dataset tiers have been organized and profiled, the PostgreSQL 17 relational database has been migrated with all 6 core tables, and the ingestion service foundation is ready. Data ingestion, dashboard views, and analytics APIs will be implemented in subsequent stages.

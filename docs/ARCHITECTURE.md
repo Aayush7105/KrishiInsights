@@ -1,12 +1,12 @@
 # KrishiInsights — System Architecture
 
-This document describes the high-level system architecture, component boundaries, and communication patterns of the **KrishiInsights** platform.
+This document describes the system architecture, component boundaries, data flow pipelines, and database design of the **KrishiInsights** platform.
 
 ---
 
 ## 1. Monorepo Architectural Overview
 
-KrishiInsights adopts a modular monorepo pattern that cleanly separates the user interface, backend application programming interface, machine learning training workflows, and database layers:
+KrishiInsights adopts a modular monorepo pattern that cleanly separates the user interface, backend application programming interface, machine learning training workflows, database persistence, and canonical dataset tiers:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -25,68 +25,86 @@ KrishiInsights adopts a modular monorepo pattern that cleanly separates the user
                │                              │
 ┌──────────────▼──────────────┐ ┌─────────────▼───────────────┐
 │     PostgreSQL Database     │ │   Trained Model Artifacts   │
-│  (Relational Storage, DDL)  │ │   (.joblib, Scikit-learn)   │
-└─────────────────────────────┘ └─────────────────────────────┘
-                                              ▲
-                                         Model Training
-                                              │
-                                ┌─────────────┴───────────────┐
-                                │      Machine Learning       │
-                                │   (Pandas, Scikit-learn)    │
-                                └─────────────────────────────┘
+│  (PostgreSQL 17, Alembic)   │ │   (.joblib, Scikit-learn)   │
+└──────────────▲──────────────┘ └─────────────▲───────────────┘
+               │ Ingestion Pipeline           │ Feature Matrix
+┌──────────────┴──────────────────────────────┴───────────────┐
+│            Canonical Datasets (`datasets/`)                 │
+│  ├── raw/ (agriculture/, rainfall/)                         │
+│  ├── interim/                                               │
+│  ├── processed/ (clean_crop_data.csv, combined_data.csv)    │
+│  └── metadata/ (profiles, sources, codebooks)               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Component Responsibilities
+## 2. Canonical Dataset Storage & Pipeline Flow
 
-### 2.1 Frontend (`frontend/`)
-* **Role:** Presentation and user interaction layer.
-* **Responsibilities:**
-  * Render responsive KPI metric cards, data tables, and interactive Recharts visualizations.
-  * Provide dynamic, dependent filtering controls (e.g., selecting a state dynamically filters available districts).
-  * Host the crop yield estimation form with input validation.
-  * Consume JSON data from backend REST endpoints via standard `fetch` or `axios`.
-  * Display explicit loading, error, and empty states.
+### 2.1 Storage Organization
+* **Canonical Root (`datasets/`):** All agricultural and rainfall data is stored in the root `datasets/` directory.
+* **No Redundant Copies:** The `ml/` module references `datasets/` directly via relative paths, eliminating duplicate files in `ml/data/` and preventing data drift.
 
-### 2.2 Backend (`backend/`)
-* **Role:** Business logic, query orchestration, and prediction inference service.
-* **Responsibilities:**
-  * Expose versioned REST endpoints (`/api/dashboard`, `/api/agriculture`, `/api/analytics`, `/api/predictions`).
-  * Validate request inputs and response structures using Pydantic models.
-  * Query the PostgreSQL database using SQLAlchemy.
-  * Load pre-trained machine learning pipelines (`joblib`) into memory on startup and generate yield estimates without training during request handling.
-  * Enforce Cross-Origin Resource Sharing (CORS) rules for frontend access.
-
-### 2.3 Machine Learning Module (`ml/`)
-* **Role:** Offline data science experimentation, exploratory analysis, and model training.
-* **Responsibilities:**
-  * Clean, preprocess, and merge raw agricultural and rainfall records.
-  * Perform exploratory data analysis (EDA) and generate diagnostic charts.
-  * Train regression pipelines (Linear Regression, Decision Tree, Random Forest).
-  * Prevent target leakage (never predicting Yield using Production).
-  * Validate models using chronological holdout splits and evaluate with MAE, RMSE, and $R^2$.
-  * Serialize approved model pipelines to `ml/artifacts/` for backend deployment.
-
-### 2.4 Database Layer (`database/`)
-* **Role:** Structured relational data persistence.
-* **Responsibilities:**
-  * Store normalized entities (`states`, `districts`, `crops`, `agricultural_records`, `rainfall_records`, `prediction_records`).
-  * Maintain referential integrity via foreign key constraints.
-  * Provide indexed queries for fast multi-dimensional filtering across states, crops, and years.
-  * Version schema modifications using Alembic migrations.
+### 2.2 Data Pipeline from Raw Source to PostgreSQL
+```
+[Official Sources: data.gov.in / NDAP / IMD]
+                       │
+                       ▼
+         datasets/raw/agriculture/crop_production.csv (15.3 MB)
+         datasets/raw/rainfall/rainfall.csv (524 KB)
+                       │
+                       ▼
+         scripts/preprocess_data.py
+         ├── Missing production filtering (1.52%)
+         ├── Positive area verification (Area > 0)
+         ├── Unit categorization (Coconut nuts vs. Field crop tonnes)
+         ├── Yield derivation (Yield = Production / Area)
+         └── Subdivision-to-State seasonal rainfall alignment
+                       │
+                       ▼
+         datasets/processed/clean_crop_data.csv (242,296 rows)
+         datasets/processed/combined_data.csv (242,296 rows)
+                       │
+                       ▼
+         backend/app/services/ingestion_service.py
+         ├── Reference caching (states, districts, crops)
+         ├── Record validation & duplicate rejection
+         └── Batch PostgreSQL ingestion (Alembic managed schema)
+                       │
+                       ▼
+         PostgreSQL 17 (`krishiinsights_db`)
+         (states, districts, crops, agricultural_records, rainfall_records)
+```
 
 ---
 
-## 3. Communication Patterns
+## 3. Database Entity-Relationship Design
 
-1. **Client-to-Server Communication:**
-   * All frontend-to-backend communication occurs over HTTP/HTTPS using standard REST conventions.
-   * Payloads and query parameters are serialized as JSON.
-2. **Environment Isolation:**
-   * In development:
-     * Frontend: `http://localhost:3000`
-     * Backend: `http://localhost:8000`
-     * Base URL configured via `NEXT_PUBLIC_API_URL` in frontend environment.
-3. **Decoupled Deployment Readiness:**
-   * Because the frontend and backend communicate strictly via HTTP, they can be deployed together or independently (e.g., Next.js on Vercel and FastAPI on a containerized host like Render or Docker).
+The relational schema is configured in `backend/app/models/agriculture.py` and versioned via Alembic migrations (`database/migrations/`):
+
+1. **`states`:** Unique state registry (`id`, `state_name`, `source_code`).
+2. **`districts`:** District records linked via `state_id` with cascading delete and composite uniqueness `(state_id, district_name)`.
+3. **`crops`:** Normalized crop master table (`id`, `crop_name`, `crop_category`).
+4. **`agricultural_records`:** Granular time-series observations linking `state_id`, `district_id`, `crop_id`, `season`, `year`, `area`, `production`, and `yield_amount`. Composite unique constraint prevents duplicate entries.
+5. **`rainfall_records`:** Climate metrics linking `state_id`, `year`, `annual_rainfall_mm`, and seasonal totals (`monsoon_rainfall_mm`, `rabi_rainfall_mm`, `pre_monsoon_rainfall_mm`).
+6. **`prediction_records`:** Historical query log storing `input_features` (JSON), `predicted_yield`, `model_name`, `model_version`, and `created_at`.
+
+---
+
+## 4. Component Boundaries & Responsibilities
+
+### 4.1 Frontend (`frontend/`)
+* Built with Next.js 16 (App Router), React 19, TypeScript, and Tailwind CSS.
+* Communicates with the backend exclusively via standard HTTP REST endpoints.
+* Houses reusable UI components (KPI cards, Recharts time-series trends, data explorer tables, and yield estimation form).
+
+### 4.2 Backend API (`backend/`)
+* Built with Python FastAPI, Pydantic, and SQLAlchemy 2.x.
+* Connects to PostgreSQL using `psycopg2-binary` with connection pooling (`pool_pre_ping=True`).
+* Provides decoupled environment configuration supporting both local development PostgreSQL and future hosted instances (Supabase, AWS RDS, Neon) without application code changes.
+* Enforces CORS policies for `http://localhost:3000`.
+
+### 4.3 Machine Learning Module (`ml/`)
+* Houses offline analytical notebooks (`ml/notebooks/`), feature engineering, and model training routines.
+* Consumes processed records from `datasets/processed/combined_data.csv`.
+* Serializes validated regression pipelines (`.joblib`) into `ml/artifacts/` for backend deployment.
