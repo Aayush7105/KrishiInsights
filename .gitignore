@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Testing & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Next.js Build Outputs
+.next/
+out/
+build/
+dist/
+
+# Environment Variables & Secrets
+.env
+.env*.local
+!.env.example
+
+# Large Data & Model Artifacts
+ml/artifacts/*.joblib
+ml/artifacts/*.pkl
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.turbo
+
+# IDE & Editor Specific
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
