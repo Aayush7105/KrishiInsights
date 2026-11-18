@@ -99,7 +99,7 @@ def clean_crop_data(raw_crop_path):
         'Winter': 'Winter',
         'Whole Year': 'Whole Year'
     }
-    df['Season'] = df['Season'].map(lambda s: season_map.get(s, s))
+    df['Season'] = df['Season'].replace(season_map)
 
     # Identify duplicates
     duplicates = df.duplicated(subset=['State', 'District', 'Year', 'Season', 'Crop']).sum()
@@ -117,7 +117,7 @@ def clean_crop_data(raw_crop_path):
     print(f"Records retained after filtering non-positive area and missing production: {len(df_clean):,}")
 
     # Document unit distinctions: Coconut is measured in nuts, others in Tonnes
-    is_coconut = df_clean['Crop'].str.contains('Coconut', case=False, na=False)
+    is_coconut = df_clean['Crop'].astype(str).str.contains('Coconut', case=False, na=False)  # type: ignore
     df_clean['Area_Unit'] = 'Hectares'
     df_clean['Production_Unit'] = np.where(is_coconut, 'Number of Nuts', 'Tonnes')
     df_clean['Yield_Unit'] = np.where(is_coconut, 'Nuts/Hectare', 'Tonnes/Hectare')
@@ -161,7 +161,7 @@ def clean_rainfall_data(raw_rain_path):
     # Map Subdivisions to Indian States
     records = []
     for _, row in df.iterrows():
-        sub = row['SUBDIVISION']
+        sub = str(row['SUBDIVISION'])
         if sub in SUBDIVISION_TO_STATES:
             for state in SUBDIVISION_TO_STATES[sub]:
                 rec = row.to_dict()
@@ -247,7 +247,7 @@ def main():
     # 1. Clean Crop Data
     clean_crop = clean_crop_data(RAW_CROP_PATH)
     print(f"Saving cleaned crop data to {CLEAN_CROP_PATH}...")
-    clean_crop.to_csv(CLEAN_CROP_PATH, index=False)
+    clean_crop.to_csv(CLEAN_CROP_PATH, index=False)  # type: ignore
     print(f"Clean crop data saved: {os.path.getsize(CLEAN_CROP_PATH):,} bytes")
 
     # 2. Clean Rainfall Data

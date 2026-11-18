@@ -86,6 +86,7 @@ def run_tests():
             "ver": "v1.0"
         }).fetchone()
         db.commit()
+        assert insert_res is not None
         record_id = insert_res[0]
         created_at = insert_res[1]
         print(f"  * Record Written to Neon: ID={record_id}, CreatedAt={created_at}")

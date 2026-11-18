@@ -23,18 +23,18 @@ def profile_crop_data(file_path):
     districts_count = df['District_Name'].nunique()
     crops = sorted(df['Crop'].dropna().str.strip().unique().tolist())
     seasons = sorted(df['Season'].dropna().str.strip().unique().tolist())
-    years = [int(df['Crop_Year'].min()), int(df['Crop_Year'].max())]
+    years = [int(df['Crop_Year'].min()), int(df['Crop_Year'].max())]  # type: ignore
 
     # Numeric profiling
     area_stats = df['Area'].describe().to_dict()
     prod_stats = df['Production'].describe().to_dict()
-    non_positive_area = int((df['Area'] <= 0).sum())
-    negative_prod = int((df['Production'] < 0).sum())
+    non_positive_area = int(np.sum(df['Area'] <= 0))
+    negative_prod = int(np.sum(df['Production'] < 0))
 
     # Unit nuances
     coconut_records = df[df['Crop'].str.contains('Coconut', case=False, na=False)]
     coconut_count = len(coconut_records)
-    coconut_prod_median = float(coconut_records['Production'].median())
+    coconut_prod_median = float(pd.Series(coconut_records['Production']).median())
 
     profile = {
         "dataset_name": "Crop Production in India (1997-2015)",
@@ -85,7 +85,7 @@ def profile_rainfall_data(file_path):
     dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
     duplicates = int(df.duplicated(subset=['SUBDIVISION', 'YEAR']).sum())
     subdivisions = sorted(df['SUBDIVISION'].dropna().unique().tolist())
-    years = [int(df['YEAR'].min()), int(df['YEAR'].max())]
+    years = [int(df['YEAR'].min()), int(df['YEAR'].max())]  # type: ignore
 
     annual_stats = df['ANNUAL'].describe().to_dict()
     monsoon_stats = df['Jun-Sep'].describe().to_dict()

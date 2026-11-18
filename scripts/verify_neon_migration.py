@@ -71,6 +71,7 @@ def run_verification():
         """)
         l_agri = l_conn.execute(agri_query).fetchone()
         n_agri = n_conn.execute(agri_query).fetchone()
+        assert l_agri is not None and n_agri is not None
 
         audit_results["agricultural"] = {
             "year_range": {"local": f"{l_agri[0]}-{l_agri[1]}", "neon": f"{n_agri[0]}-{n_agri[1]}", "match": l_agri[0] == n_agri[0] and l_agri[1] == n_agri[1]},
@@ -116,6 +117,7 @@ def run_verification():
         """)
         l_rain = l_conn.execute(rain_query).fetchone()
         n_rain = n_conn.execute(rain_query).fetchone()
+        assert l_rain is not None and n_rain is not None
 
         audit_results["rainfall"] = {
             "year_range": {"local": f"{l_rain[0]}-{l_rain[1]}", "neon": f"{n_rain[0]}-{n_rain[1]}", "match": l_rain[0] == n_rain[0] and l_rain[1] == n_rain[1]},
@@ -140,6 +142,7 @@ def run_verification():
         """)
         l_orphans = l_conn.execute(orphans_query).fetchone()
         n_orphans = n_conn.execute(orphans_query).fetchone()
+        assert l_orphans is not None and n_orphans is not None
         print("\n[REFERENTIAL INTEGRITY (ORPHANS)]")
         orphan_keys = ['agri->state', 'agri->district', 'agri->crop', 'district->state', 'rainfall->state']
         for i, k in enumerate(orphan_keys):
@@ -199,7 +202,7 @@ Every table, record, index, foreign key constraint, unique constraint, sequence,
 * **Distinct Crops:** 124 (Local: 124 | Neon: 124)
 * **Distinct Seasons:** 6 (Kharif, Rabi, Summer, Autumn, Winter, Whole Year)
 * **Null Yield Values:** **0** (Local: 0 | Neon: 0)
-* **Non-Positive Area ($\le 0$):** **0** (Local: 0 | Neon: 0)
+* **Non-Positive Area ($\\\\le 0$):** **0** (Local: 0 | Neon: 0)
 * **Negative Production ($< 0$):** **0** (Local: 0 | Neon: 0)
 * **Average Yield Amount:** **92.2036** (Local: 92.2036 | Neon: 92.2036)
 

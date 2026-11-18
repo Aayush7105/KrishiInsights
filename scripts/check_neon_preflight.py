@@ -30,8 +30,10 @@ def check_neon():
     db_url = url.replace("postgresql://", "postgresql+psycopg2://", 1) if url.startswith("postgresql://") else url
     engine = create_engine(db_url, pool_pre_ping=True)
     with engine.connect() as conn:
-        user, db, in_recovery = conn.execute(text("SELECT current_user, current_database(), pg_is_in_recovery();")).fetchone()
-        server_ver = conn.execute(text("SELECT version();")).scalar()
+        row = conn.execute(text("SELECT current_user, current_database(), pg_is_in_recovery();")).fetchone()
+        assert row is not None
+        user, db, in_recovery = row
+        server_ver = str(conn.execute(text("SELECT version();")).scalar() or "")
 
         # Check existing tables in public schema
         tables = conn.execute(text(

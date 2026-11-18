@@ -4,13 +4,18 @@ Syncs Markdown reports with exact Neon database numbers verified during Stage 4 
 
 import re
 
+def find_block(pattern: str, text: str) -> str:
+    m = re.search(pattern, text, re.DOTALL)
+    assert m is not None, f"Pattern not found: {pattern}"
+    return m.group(0)
+
 def update_agricultural_analysis():
     filepath = "docs/AGRICULTURAL_ANALYSIS.md"
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     # 1. Update Annual Historical Trajectory Table
-    old_traj = re.search(r"### Annual Historical Trajectory Table.*?(?=---)", content, re.DOTALL).group(0)
+    old_traj = find_block(r"### Annual Historical Trajectory Table.*?(?=---)", content)
     new_traj = """### Annual Historical Trajectory Table
 
 | Year | Total Production (MT) | Total Area (MHa) | Aggregate Yield (T/Ha) | Production YoY (%) | Yield YoY (%) | Production Index (1997=100) |
@@ -50,7 +55,7 @@ def update_agricultural_analysis():
     content = content.replace(old_traj, new_traj)
 
     # 2. Update Seasonal Distribution
-    old_season = re.search(r"## 2\. Seasonal Distribution of Indian Agriculture.*?(?=---)", content, re.DOTALL).group(0)
+    old_season = find_block(r"## 2\. Seasonal Distribution of Indian Agriculture.*?(?=---)", content)
     new_season = """## 2. Seasonal Distribution of Indian Agriculture
 
 Indian agriculture is structured across distinct crop seasons: Kharif (Monsoon), Rabi (Winter), Summer (Zaid), Autumn, Winter (Boro/rice), and administrative Whole Year submissions.
@@ -73,7 +78,7 @@ Indian agriculture is structured across distinct crop seasons: Kharif (Monsoon),
     content = content.replace(old_season, new_season)
 
     # 3. Update Crop Rankings
-    old_rankings = re.search(r"## 3\. National Crop Rankings across 124 Crops.*?(?=## 4\.)", content, re.DOTALL).group(0)
+    old_rankings = find_block(r"## 3\. National Crop Rankings across 124 Crops.*?(?=## 4\.)", content)
     new_rankings = """## 3. National Crop Rankings across 124 Crops
 
 ### 3.1 Top 10 Field Crops by Total Cumulative Production (1997–2015)
@@ -137,7 +142,7 @@ def update_rainfall_analysis():
         content = f.read()
 
     # Document both unweighted state-average and IMD area-weighted LPA
-    old_sec1 = re.search(r"## 1\. 115-Year National Meteorological Historical Overview.*?(?=---)", content, re.DOTALL).group(0)
+    old_sec1 = find_block(r"## 1\. 115-Year National Meteorological Historical Overview.*?(?=---)", content)
     new_sec1 = """## 1. 115-Year National Meteorological Historical Overview (1901–2015)
 
 The India Meteorological Department (IMD) rainfall dataset contains **3,772 records** across 115 years (1901–2015) spanning 36 meteorological subdivisions aligned with 33 modern administrative states.
@@ -152,8 +157,8 @@ In agro-meteorological research, national rainfall can be evaluated under two fr
 | :--- | :---: | :---: |
 | **Annual Precipitation Mean (LPA)** | **1,608.94 mm** | **1,180.72 mm** |
 | **Southwest Monsoon (Jun–Sep) Mean** | **1,164.53 mm (72.38%)** | **880.84 mm (74.60%)** |
-| **Standard Deviation ($\sigma$)** | 917.32 mm | 109.82 mm |
-| **Coefficient of Variation ($CV\%$)** | **57.01%** | **9.30%** |
+| **Standard Deviation ($\\\\sigma$)** | 917.32 mm | 109.82 mm |
+| **Coefficient of Variation ($CV\\\\%$)** | **57.01%** | **9.30%** |
 | **Temporal Horizon** | 1901–2015 (115 years) | 1901–2015 (115 years) |
 | **Observations Analyzed** | 3,772 state-year records | All-India area-weighted series |
 
@@ -173,7 +178,7 @@ def update_rainfall_agri_relationship():
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
-    old_sec1 = re.search(r"## 1\. Paired Seasonal Correlation Analysis.*?(?=---)", content, re.DOTALL).group(0)
+    old_sec1 = find_block(r"## 1\. Paired Seasonal Correlation Analysis.*?(?=---)", content)
     new_sec1 = """## 1. Paired Seasonal Correlation Analysis & Simpson's Paradox
 
 To evaluate how precipitation impacts agricultural outcomes, we analyzed paired seasonal relationships over the 1997–2015 overlapping horizon across all reporting Indian states.
@@ -208,7 +213,7 @@ A critical statistical discovery in Stage 4 is the manifestation of **Simpson's 
     content = content.replace(old_sec1, new_sec1)
 
     # Update Section 3: State-Level Contrast Table
-    old_sec3 = re.search(r"## 3\. State-Level Sensitivity Divergence.*?(?=---)", content, re.DOTALL).group(0)
+    old_sec3 = find_block(r"## 3\. State-Level Sensitivity Divergence.*?(?=---)", content)
     new_sec3 = """## 3. State-Level Sensitivity Divergence (Canal vs Rainfed)
 
 Evaluating Kharif Rice yield sensitivity to Monsoon rainfall across Indian states demonstrates how infrastructure alters climate vulnerability.
@@ -251,7 +256,7 @@ graph LR
     content = content.replace(old_sec3, new_sec3)
 
     # Update Outliers section
-    old_outliers = re.search(r"## 4\. Outlier Analysis & Anomaly Classification.*?(?=\Z)", content, re.DOTALL).group(0)
+    old_outliers = find_block(r"## 4\. Outlier Analysis & Anomaly Classification.*?(?=\Z)", content)
     new_outliers = """## 4. Outlier Analysis & Anomaly Classification
 
 Using both Tukey's **Interquartile Range (IQR)** method ($[Q_1 - 1.5 \\times IQR, Q_3 + 1.5 \\times IQR]$) and **Z-score standardization** ($|z| > 3.0$), we performed comprehensive anomaly detection across the 240,338 field crop records.
@@ -282,7 +287,7 @@ def update_statistical_findings():
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
-    old_factsheet = re.search(r"### Master Statistical Fact Sheet.*?(?=---)", content, re.DOTALL).group(0)
+    old_factsheet = find_block(r"### Master Statistical Fact Sheet.*?(?=---)", content)
     new_factsheet = """### Master Statistical Fact Sheet
 
 | Quantitative Metric | Exact Evaluated Value | Statistical Context / Interpretation |

@@ -59,6 +59,7 @@ def record_local_state():
                 COUNT(*) FILTER (WHERE yield_amount IS NULL)
             FROM agricultural_records;
         """)).fetchone()
+        assert agri_stats is not None
         print("\n[AGRICULTURAL STATS]")
         print(f"  * Year range: {agri_stats[0]} - {agri_stats[1]}")
         print(f"  * States: {agri_stats[2]}, Districts: {agri_stats[3]}, Crops: {agri_stats[4]}")

@@ -105,7 +105,7 @@ def run_statistical_audit():
 
     print("Actual Top 10 by Production from Neon:")
     print(sql_top_crops.to_string(index=False))
-    match_top = (sql_top_crops["crop_name"].values == py_top_crops["crop_name"].values).all()
+    match_top = bool(np.all(sql_top_crops["crop_name"].to_numpy() == py_top_crops["crop_name"].to_numpy()))
     print(f"[PASS] Top 10 Crop ordering and values match 100%: {match_top}")
 
     # Top by Area
@@ -194,9 +194,9 @@ def run_statistical_audit():
     y = np.array([2.1, 3.9, 6.2, 8.1, 9.9, 12.0, 14.1, 15.9, 18.2, 20.0])
     
     r_res = stats.pearsonr(x, y)
-    r_val = float(r_res.statistic if hasattr(r_res, 'statistic') else r_res[0])
+    r_val = float(r_res[0])  # type: ignore
     rho_res = stats.spearmanr(x, y)
-    rho_val = float(rho_res.statistic if hasattr(rho_res, 'statistic') else rho_res[0])
+    rho_val = float(rho_res[0])  # type: ignore
 
     print(f"Controlled Pearson r: {r_val:.6f} (Expected > 0.999)")
     print(f"Controlled Spearman rho: {rho_val:.6f} (Expected == 1.0)")

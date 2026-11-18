@@ -113,6 +113,7 @@ def run_verification():
                 COUNT(*) FILTER (WHERE production < 0) as neg_prods
             FROM agricultural_records;
         """)).fetchone()
+        assert agri_stats is not None
         print(f"  Year Range           : {agri_stats[0]} - {agri_stats[1]}")
         print(f"  Distinct States      : {agri_stats[2]}")
         print(f"  Distinct Districts   : {agri_stats[3]}")
@@ -155,6 +156,7 @@ def run_verification():
                 ROUND(AVG(monsoon_rainfall_mm)::numeric, 2)
             FROM rainfall_records;
         """)).fetchone()
+        assert rain_stats is not None
         print(f"  Year Range           : {rain_stats[0]} - {rain_stats[1]}")
         print(f"  Distinct States      : {rain_stats[2]}")
         print(f"  Total Rainfall Rows  : {rain_stats[3]:,}")
