@@ -9,14 +9,21 @@ import os
 import json
 from sqlalchemy import text
 
-# Add backend directory to sys.path
+# Add backend and root directories to sys.path
 backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
-if backend_path not in sys.path:
-    sys.path.insert(0, backend_path)
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+for path in (backend_path, root_path):
+    if path not in sys.path:
+        sys.path.insert(0, path)
 
-from app.core.config import settings
-from app.database.session import SessionLocal
-from app.api.routes.health import health_check
+try:
+    from app.core.config import settings  # type: ignore[import-not-found]
+    from app.database.session import SessionLocal  # type: ignore[import-not-found]
+    from app.api.routes.health import health_check  # type: ignore[import-not-found]
+except ImportError:
+    from backend.app.core.config import settings  # type: ignore[import-not-found, no-redef]
+    from backend.app.database.session import SessionLocal  # type: ignore[import-not-found, no-redef]
+    from backend.app.api.routes.health import health_check  # type: ignore[import-not-found, no-redef]
 
 def run_tests():
     print("\n========================================================")
