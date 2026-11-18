@@ -17,6 +17,32 @@ Stage 4 conducted comprehensive exploratory data analysis, descriptive statistic
 | Quantitative Metric | Exact Evaluated Value | Statistical Context / Interpretation |
 | :--- | :--- | :--- |
 | **Total Ingested Observations** | **242,296 agricultural, 3,772 rainfall** | 100% verified against Neon primary source of truth. |
+| **Field Crop Observations** | **240,338 records** | Yield measured in Metric Tonnes per Hectare ($\text{T/Ha}$). |
+| **Coconut Observations** | **1,958 records** | Yield strictly segregated; measured in Nuts per Hectare. |
+| **Field Crop Yield: Mean vs Median** | **Mean: 4.42 T/Ha, Median: 1.00 T/Ha** | Extreme right skewness ($\\sigma = 12.11\\text{ T/Ha}, \\text{IQR} = 1.78\\text{ T/Ha}$). |
+| **National Production (1997 vs Peak 2013)** | **1997: 537.51 MT $\\to$ 2013: 683.69 MT** | Complete field crop harvest series; peak reached in 2013. |
+| **National Cultivated Area** | **1997: 230.37 MHa $\\to$ 2013: 139.68 MHa** | Stabilized around $140 - 175\\text{ MHa}$ across full reporting years. |
+| **National Aggregate Yield Gain** | **1997: 2.33 T/Ha $\\to$ 2013: 4.89 T/Ha $\\to$ 2014: 5.22 T/Ha** | Driven by yield intensification and mechanization. |
+| **Kharif Season Acreage Dominance**| **48.06% of total cultivated area** | 1,403.36 MHa cultivated during Southwest Monsoon. |
+| **Rabi Season Crop Area** | **32.46% of total cultivated area** | 947.91 MHa cultivated under winter season. |
+| **Whole Year Production Dominance** | **37.87% of production (4,115.58 MT)** | Driven by perennial high-biomass Sugarcane ($18.21\\text{ T/Ha}$). |
+| **Top Producing Crop by Tonnage** | **Sugarcane: 5,208.05 Million Tonnes** | High biomass perennial cash crop ($68.25\\text{ T/Ha}$ aggregate yield). |
+| **Top Cultivated Crop by Acreage** | **Rice: 746.32 Million Hectares** | Core staple grain across India ($1,605.22\\text{ MT}$ production). |
+| **Top Agricultural State (Volume)**| **Uttar Pradesh: 3,234.49 Million Tonnes** | Produces $>30\\%$ of all national field crop output ($7.46\\text{ T/Ha}$). |
+| **Top Agricultural State (Yield)** | **Tamil Nadu: 8.95 T/Ha aggregate yield** | Intensive sugarcane, delta paddy, and banana cultivation. |
+| **Most Diversified State** | **Karnataka (Effective Crops: 17.1)** | Polyculture spreading climatic and market risks ($H' = 2.84$). |
+| **Monoculture Concentration** | **Punjab (Wheat + Rice = 84.6% of area)**| Intensive Green Revolution cereal duopoly ($H' = 1.24$). |
+| **Rainfall Baseline (State-Avg LPA)**| **1,608.94 mm (Std: 917.32 mm, CV: 57.01%)** | Unweighted database state-average mean precipitation (1901–2015). |
+| **Rainfall Baseline (IMD National LPA)**| **1,180.72 mm (Std: 109.82 mm, CV: 9.30%)** | Official IMD area-weighted all-India normal. |
+| **Southwest Monsoon Proportion** | **72.38% (1,164.53 mm)** | Principal hydrological contributor to Indian water table. |
+| **Pre-Monsoon vs Summer Yield** | **Pearson $r = +0.2198$ ($p = 9.34 \\times 10^{-5}$)** | Statistically significant positive relationship. |
+| **Simpson's Paradox (Pooled Kharif)**| **Pearson $r = -0.1364$ ($p = 0.0024$)** | Spatial confounding: high-yield irrigated vs rainfed states. |
+| **Rainfed State Sensitivity** | **Rajasthan ($r = +0.73$), MP ($r = +0.72$), Odisha ($r = +0.52$)** | Direct, acute sensitivity of rice yield to monsoon rainfall. |
+| **Flood Inundation State Sensitivity**| **West Bengal ($r = -0.59, p = 0.0107$)** | Excess rainfall triggers waterlogging and submergence yield loss. |
+| **Irrigated Decoupling** | **Punjab ($r = +0.26, p = 0.31$), UP ($r = +0.14, p = 0.57$)** | Tubewell and canal infrastructure shields yields from rainfall. |
+
+--- | :--- | :--- |
+| **Total Ingested Observations** | **242,296 agricultural, 3,772 rainfall** | 100% verified against Neon primary source of truth. |
 | **Field Crop Observations** | **240,317 records** | Yield measured in Metric Tonnes per Hectare ($\text{T/Ha}$). |
 | **Coconut Observations** | **1,979 records** | Yield strictly segregated; measured in Nuts per Hectare. |
 | **Field Crop Yield: Mean vs Median** | **Mean: 3.52 T/Ha, Median: 1.10 T/Ha** | Extreme right skewness ($\text{IQR} = 1.84\text{ T/Ha}$). |

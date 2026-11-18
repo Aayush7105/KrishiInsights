@@ -140,19 +140,25 @@ def analyze_crop_yield_anomalies(
     if subset.empty:
         return {"error": f"No records found for crop '{crop_name}'"}
 
+    # Dynamically resolve column names
+    yield_col = "yield" if "yield" in subset.columns else "yield_amount"
+    year_col = "crop_year" if "crop_year" in subset.columns else "year"
+    season_col = "season_name" if "season_name" in subset.columns else "season"
+
     # Separate unit groups if crop_name not given
     unit_category = "Coconut (Nuts/Ha)" if (crop_name and crop_name.lower() == "coconut") else "Field Crops (Tonnes/Ha)"
     
-    clean_yield = subset["yield"].dropna()
+    clean_yield = subset[yield_col].dropna()
     iqr_res = detect_outliers_iqr(clean_yield, multiplier=iqr_multiplier)
     z_res = detect_outliers_zscore(clean_yield, threshold=3.0)
 
     # Top highest yield anomalies
     outlier_rows = subset.loc[iqr_res["outlier_indices"]]
+    req_cols = [c for c in [year_col, "state_name", "district_name", "crop_name", season_col, "area", "production", yield_col] if c in outlier_rows.columns]
     top_upper_anomalies = (
-        outlier_rows[outlier_rows["yield"] > iqr_res["upper_bound"]]
-        .sort_values(by="yield", ascending=False)
-        .head(10)[["crop_year", "state_name", "district_name", "crop_name", "season_name", "area", "production", "yield"]]
+        outlier_rows[outlier_rows[yield_col] > iqr_res["upper_bound"]]
+        .sort_values(by=yield_col, ascending=False)
+        .head(10)[req_cols]
         .to_dict(orient="records")
     )
 
@@ -224,25 +230,26 @@ def classify_anomalies_summary(df: pd.DataFrame) -> Dict[str, Any]:
     """
     # Exclude Coconut
     field_df = df[df["crop_name"].str.lower() != "coconut"].copy()
+    yield_col = "yield" if "yield" in field_df.columns else "yield_amount"
 
     # Suspicious ratio: area < 2 ha, production > 100 tonnes -> yield > 50 tonnes/ha (except sugarcane)
     suspicious_yield_mask = (
         (field_df["area"] < 5) & 
-        (field_df["yield"] > 50) & 
+        (field_df[yield_col] > 50) & 
         (~field_df["crop_name"].str.lower().isin(["sugarcane", "banana", "sweet potato", "tapioca"]))
     )
     suspicious_records = field_df[suspicious_yield_mask]
 
     # Extreme low yield (crop failure / drought shock)
-    crop_failures = field_df[(field_df["area"] > 500) & (field_df["yield"] < 0.05)]
+    crop_failures = field_df[(field_df["area"] > 500) & (field_df[yield_col] < 0.05)]
 
     # Legitimate agro-climatic high yields (Sugarcane)
     sugarcane_records = field_df[field_df["crop_name"].str.lower() == "sugarcane"]
-    sugarcane_iqr = detect_outliers_iqr(sugarcane_records["yield"].dropna())
+    sugarcane_iqr = detect_outliers_iqr(sugarcane_records[yield_col].dropna())
 
     # Rice high yield pockets
     rice_records = field_df[field_df["crop_name"].str.lower() == "rice"]
-    rice_iqr = detect_outliers_iqr(rice_records["yield"].dropna())
+    rice_iqr = detect_outliers_iqr(rice_records[yield_col].dropna())
 
     return {
         "field_crops_evaluated": len(field_df),

@@ -72,7 +72,36 @@ def get_rainfall_summary_statistics() -> Dict[str, Any]:
         "iqr_annual_rainfall_mm": round(float(annual.quantile(0.75) - annual.quantile(0.25)), 2),
         "mean_monsoon_share_pct": round(float((monsoon.mean() / annual.mean()) * 100), 2),
         "total_deficit_years": int((trends_df["rainfall_category"] == "Drought / Deficit").sum()),
-        "total_excess_years": int((trends_df["rainfall_category"] == "Excess / Flood").sum())
+        "total_excess_years": int((trends_df["rainfall_category"] == "Excess / Flood").sum()),
+        # Nested structures for notebook compatibility
+        "time_horizon": {
+            "start_year": int(trends_df["year"].min()),
+            "end_year": int(trends_df["year"].max()),
+            "total_years": len(trends_df)
+        },
+        "annual_rainfall": {
+            "mean_mm": round(float(annual.mean()), 2),
+            "std_mm": round(float(annual.std()), 2),
+            "cv_pct": round(float((annual.std() / annual.mean()) * 100), 2)
+        },
+        "monsoon_rainfall": {
+            "mean_mm": round(float(monsoon.mean()), 2),
+            "pct_of_annual": round(float((monsoon.mean() / annual.mean()) * 100), 2)
+        },
+        "driest_year": {
+            "year": int(driest_year["year"]),
+            "rainfall_mm": round(float(annual.min()), 2),
+            "deviation_pct": round(float(driest_year["lpa_deviation_pct"]), 2)
+        },
+        "wettest_year": {
+            "year": int(wettest_year["year"]),
+            "rainfall_mm": round(float(annual.max()), 2),
+            "deviation_pct": round(float(wettest_year["lpa_deviation_pct"]), 2)
+        },
+        "anomaly_counts": {
+            "drought_years_count": int((trends_df["rainfall_category"] == "Drought / Deficit").sum()),
+            "excess_years_count": int((trends_df["rainfall_category"] == "Excess / Flood").sum())
+        }
     }
     return stats
 
@@ -87,7 +116,7 @@ def get_state_rainfall_profile(state_name: str) -> Dict[str, Any]:
             r.monsoon_rainfall_mm,
             r.rabi_rainfall_mm,
             r.pre_monsoon_rainfall_mm,
-            r.source_subdivision
+            r.source_id
         FROM rainfall_records r
         JOIN states s ON r.state_id = s.id
         WHERE s.state_name = :state_name
@@ -99,11 +128,10 @@ def get_state_rainfall_profile(state_name: str) -> Dict[str, Any]:
 
     mean_ann = df["annual_rainfall_mm"].mean()
     std_ann = df["annual_rainfall_mm"].std()
-    subdivs = sorted(df["source_subdivision"].unique().tolist())
 
     return {
         "state_name": state_name,
-        "subdivisions": subdivs,
+        "source_id": "IMD",
         "mean_annual_mm": round(float(mean_ann), 2),
         "std_annual_mm": round(float(std_ann), 2),
         "cv_pct": round(float((std_ann / mean_ann) * 100), 2) if mean_ann > 0 else 0.0,

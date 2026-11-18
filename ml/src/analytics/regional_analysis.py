@@ -177,10 +177,14 @@ def calculate_state_crop_diversity() -> pd.DataFrame:
         total_st_area = group["crop_area"].sum()
         p = group["crop_area"] / total_st_area
         shannon_h = -np.sum(p * np.log(p.replace(0, np.nan).dropna()))
+        primary_crop = group.loc[group["crop_area"].idxmax()]["crop_name"]
+        effective_crops = round(float(np.exp(shannon_h)), 2)
         results.append({
             "state_name": state,
             "crop_richness": len(group),
             "shannon_diversity_index": round(float(shannon_h), 3),
+            "effective_crops_count": effective_crops,
+            "primary_crop": primary_crop,
             "total_cultivated_area": round(float(total_st_area), 2)
         })
 

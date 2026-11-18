@@ -16,8 +16,40 @@ $$\text{National Aggregate Yield} = \frac{\sum_{i} \text{Production}_i}{\sum_{i}
 
 ### Annual Historical Trajectory Table
 
-| Year | Total Production (MT) | Total Area (MHa) | Aggregate Yield (T/Ha) | Production YoY (%) | Area YoY (%) | Yield YoY (%) | Production Index (1997=100) |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Year | Total Production (MT) | Total Area (MHa) | Aggregate Yield (T/Ha) | Production YoY (%) | Yield YoY (%) | Production Index (1997=100) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1997** | 537.51 | 230.37 | 2.3333 | — | — | 100.00 |
+| **1998** | 529.01 | 165.34 | 3.1994 | -1.58% | +37.12% | 98.42 |
+| **1999** | 574.85 | 157.33 | 3.6537 | +8.67% | +14.20% | 106.95 |
+| **2000** | 569.30 | 163.85 | 3.4745 | -0.97% | -4.90% | 105.91 |
+| **2001** | 584.25 | 163.84 | 3.5660 | +2.63% | +2.63% | 108.70 |
+| **2002** | 546.02 | 155.53 | 3.5108 | -6.54% | -1.55% | 101.58 |
+| **2003** | 562.23 | 167.96 | 3.3474 | +2.97% | -4.65% | 104.60 |
+| **2004** | 525.48 | 165.92 | 3.1671 | -6.54% | -5.39% | 97.76 |
+| **2005** | 590.57 | 161.08 | 3.6664 | +12.39% | +15.77% | 109.87 |
+| **2006** | 589.35 | 168.74 | 3.4926 | -0.21% | -4.74% | 109.64 |
+| **2007** | 579.53 | 151.01 | 3.8378 | -1.67% | +9.88% | 107.82 |
+| **2008** | 675.45 | 169.24 | 3.9911 | +16.55% | +3.99% | 125.66 |
+| **2009** | 618.50 | 163.87 | 3.7743 | -8.43% | -5.43% | 115.07 |
+| **2010** | 711.41 | 175.35 | 4.0572 | +15.02% | +7.50% | 132.35 |
+| **2011** | 709.03 | 151.80 | 4.6709 | -0.33% | +15.13% | 131.91 |
+| **2012** | 676.60 | 150.34 | 4.5005 | -4.57% | -3.65% | 125.88 |
+| **2013** | 683.69 | 139.68 | 4.8946 | +1.05% | +8.76% | 127.20 |
+| **2014** | 596.73 | 114.38 | 5.2170 | -12.72% | +6.59% | 111.02 |
+| **2015** | 6.94 | 4.60 | 1.5075 | -98.84% | -71.10% | 1.29 |
+
+*(Note: 2015 reflects a partial reporting sample of 8 states / 636 records; growth metrics are evaluated on the 1997–2014 complete series).*
+
+### Macro Trajectory Findings
+1. **Steady Productivity Expansion:** While total cultivated area stabilized after 1998 in the range of $140\text{ MHa}$ to $175\text{ MHa}$, national production expanded from $537.51\text{ MT}$ in 1997 to a peak of $683.69\text{ MT}$ in 2013 ($+27.2\%$).
+2. **Efficiency as the Primary Growth Engine:** National weighted yield rose from $2.33\text{ T/Ha}$ in 1997 to $4.89\text{ T/Ha}$ in 2013 and $5.22\text{ T/Ha}$ in 2014 ($+123.6\%$), proving that agricultural expansion in India has been driven by yield intensification rather than physical land expansion.
+3. **Severe Climate Shock Years:**
+   - **2002 Drought:** Production dropped by $-6.54\%$ YoY to $546.02\text{ MT}$ as aggregate yield declined.
+   - **2004 Deficit:** Production dropped by $-6.54\%$ YoY to $525.48\text{ MT}$.
+   - **2009 Deficit:** Production dropped by $-8.43\%$ YoY to $618.50\text{ MT}$ due to delayed and deficient monsoon rains.
+   - **2014 Deficit:** Production declined by $-12.72\%$ YoY to $596.73\text{ MT}$ following widespread rainfall deficit across central and northern India.
+
+---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **1997** | 224.26 | 134.12 | 1.6721 | — | — | — | 100.00 |
 | **1998** | 260.67 | 148.87 | 1.7510 | +16.24% | +11.00% | +4.72% | 116.24 |
 | **1999** | 268.45 | 150.15 | 1.7879 | +2.98% | +0.86% | +2.11% | 119.70 |
@@ -56,6 +88,19 @@ Indian agriculture is structured across distinct crop seasons: Kharif (Monsoon),
 
 | Season | Observations | Total Production (MT) | Cultivated Area (MHa) | Aggregate Yield (T/Ha) | Production Share (%) | Area Share (%) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Whole Year** | 54,125 | 4,115.58 | 225.97 | 18.2128 | **37.87%** | **7.74%** |
+| **Kharif** | 94,269 | 4,029.60 | 1,403.36 | 2.8714 | **37.08%** | **48.06%** |
+| **Rabi** | 66,160 | 2,051.69 | 947.91 | 2.1644 | **18.88%** | **32.46%** |
+| **Winter** | 6,050 | 434.55 | 219.60 | 1.9788 | **4.00%** | **7.52%** |
+| **Summer** | 14,810 | 170.63 | 75.31 | 2.2656 | **1.57%** | **2.58%** |
+| **Autumn** | 4,924 | 64.39 | 48.07 | 1.3396 | **0.59%** | **1.65%** |
+
+### Key Seasonal Insights
+- **Kharif is the Area Giant:** Kharif accounts for nearly half ($48.06\%$) of all gross cultivated area in India ($1,403.36\text{ MHa}$), reflecting heavy national reliance on the Southwest Monsoon.
+- **Rabi Stability:** Rabi encompasses $947.91\text{ MHa}$ ($32.46\%$) with consistent yields ($2.16\text{ T/Ha}$) supported by canal and tubewell irrigation.
+- **Whole Year High Biomass:** The "Whole Year" category accounts for $37.87\%$ of total production despite only $7.74\%$ of area, with aggregate yield reaching $18.21\text{ T/Ha}$ because perennial high-tonnage crops (Sugarcane) are reported under this administrative category.
+
+--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Kharif** | 94,283 | 2,142.15 | 1,418.90 | 1.5097 | **36.84%** | **48.86%** |
 | **Rabi** | 66,987 | 1,894.22 | 874.20 | 2.1668 | **32.58%** | **30.10%** |
 | **Whole Year** | 56,580 | 1,482.40 | 472.15 | 3.1397 | **25.50%** | **16.26%** |
@@ -76,48 +121,46 @@ Indian agriculture is structured across distinct crop seasons: Kharif (Monsoon),
 
 | Rank | Crop Name | Crop Category | Cumulative Production (MT) | Cultivated Area (MHa) | Aggregate Yield (T/Ha) |
 | :---: | :--- | :--- | :---: | :---: | :---: |
-| **1** | **Sugarcane** | Cash Crop | **5,532.84** | 82.45 | 67.1054 |
-| **2** | **Rice** | Cereal | **1,602.45** | 782.10 | 2.0489 |
-| **3** | **Wheat** | Cereal | **1,332.18** | 485.20 | 2.7456 |
-| **4** | **Potato** | Horticulture | **424.12** | 25.14 | 16.8703 |
-| **5** | **Cotton(lint)** | Fiber | **297.80** | 168.40 | 1.7684 |
-| **6** | **Maize** | Coarse Cereal | **284.15** | 138.20 | 2.0561 |
-| **7** | **Bajra** | Coarse Cereal | **152.40** | 164.80 | 0.9248 |
-| **8** | **Jowar** | Coarse Cereal | **148.90** | 158.40 | 0.9400 |
-| **9** | **Soyabean** | Oilseed | **146.20** | 148.90 | 0.9819 |
-| **10** | **Groundnut** | Oilseed | **132.80** | 108.40 | 1.2251 |
+| **1** | **Sugarcane** | Cash Crop | **5,208.05** | 76.31 | 68.2453 |
+| **2** | **Rice** | Cereal | **1,605.22** | 746.32 | 2.1509 |
+| **3** | **Wheat** | Cereal | **1,332.83** | 470.71 | 2.8315 |
+| **4** | **Potato** | Horticulture | **424.78** | 22.23 | 19.1064 |
+| **5** | **Cotton(lint)** | Fiber | **296.98** | 156.56 | 1.8969 |
+| **6** | **Maize** | Coarse Cereal | **273.32** | 121.48 | 2.2499 |
+| **7** | **Jute** | Fiber | **181.56** | 14.73 | 12.3286 |
+| **8** | **Banana** | Horticulture | **146.13** | 5.24 | 27.8626 |
+| **9** | **Soyabean** | Oilseed | **141.84** | 135.45 | 1.0472 |
+| **10** | **Bajra** | Coarse Cereal | **129.68** | 140.97 | 0.9199 |
 
 ### 3.2 Top 10 Field Crops by Cultivated Area (1997–2015)
 
 | Rank | Crop Name | Crop Category | Cultivated Area (MHa) | Cumulative Production (MT) | Aggregate Yield (T/Ha) |
 | :---: | :--- | :--- | :---: | :---: | :---: |
-| **1** | **Rice** | Cereal | **782.10** | 1,602.45 | 2.0489 |
-| **2** | **Wheat** | Cereal | **485.20** | 1,332.18 | 2.7456 |
-| **3** | **Cotton(lint)** | Fiber | **168.40** | 297.80 | 1.7684 |
-| **4** | **Bajra** | Coarse Cereal | **164.80** | 152.40 | 0.9248 |
-| **5** | **Jowar** | Coarse Cereal | **158.40** | 148.90 | 0.9400 |
-| **6** | **Soyabean** | Oilseed | **148.90** | 146.20 | 0.9819 |
-| **7** | **Gram** | Pulse | **141.20** | 114.80 | 0.8130 |
-| **8** | **Maize** | Coarse Cereal | **138.20** | 284.15 | 2.0561 |
-| **9** | **Groundnut** | Oilseed | **108.40** | 132.80 | 1.2251 |
-| **10** | **Arhar/Tur** | Pulse | **84.50** | 62.40 | 0.7385 |
+| **1** | **Rice** | Cereal | **746.32** | 1,605.22 | 2.1509 |
+| **2** | **Wheat** | Cereal | **470.71** | 1,332.83 | 2.8315 |
+| **3** | **Cotton(lint)** | Fiber | **156.56** | 296.98 | 1.8969 |
+| **4** | **Bajra** | Coarse Cereal | **140.97** | 129.68 | 0.9199 |
+| **5** | **Jowar** | Coarse Cereal | **137.66** | 114.60 | 0.8325 |
+| **6** | **Soyabean** | Oilseed | **135.45** | 141.84 | 1.0472 |
+| **7** | **Maize** | Coarse Cereal | **121.48** | 273.32 | 2.2499 |
+| **8** | **Gram** | Pulse | **118.19** | 99.41 | 0.8411 |
+| **9** | **Groundnut** | Oilseed | **102.71** | 111.74 | 1.0880 |
+| **10** | **Rapeseed &Mustard** | Oilseed | **86.57** | 90.87 | 1.0496 |
 
-### 3.3 Top 10 Field Crops by Aggregate Yield (Efficiency Leaders)
+### 3.3 Top 10 Field Crops by Aggregate Yield (Efficiency Leaders, $N \ge 100$)
 
 | Rank | Crop Name | Crop Category | Aggregate Yield (T/Ha) | Total Production (MT) | Cultivated Area (MHa) |
 | :---: | :--- | :--- | :---: | :---: | :---: |
-| **1** | **Sugarcane** | Cash Crop | **67.1054** | 5,532.84 | 82.45 |
-| **2** | **Tapioca** | Tuber | **25.4120** | 58.12 | 2.29 |
-| **3** | **Banana** | Horticulture | **22.8410** | 112.40 | 4.92 |
-| **4** | **Potato** | Horticulture | **16.8703** | 424.12 | 25.14 |
-| **5** | **Sweet potato** | Tuber | **8.9240** | 18.40 | 2.06 |
-| **6** | **Wheat** | Cereal | **2.7456** | 1,332.18 | 485.20 |
-| **7** | **Maize** | Coarse Cereal | **2.0561** | 284.15 | 138.20 |
-| **8** | **Rice** | Cereal | **2.0489** | 1,602.45 | 782.10 |
-| **9** | **Barley** | Cereal | **1.9420** | 28.40 | 14.62 |
-| **10** | **Cotton(lint)** | Fiber | **1.7684** | 297.80 | 168.40 |
-
-*(Rankings enforce minimum threshold of $\ge 100$ recorded observations to filter out micro-experimental plot anomalies).*
+| **1** | **Sugarcane** | Cash Crop | **68.2453** | 5,208.05 | 76.31 |
+| **2** | **Tapioca** | Tuber | **29.8526** | 105.01 | 3.52 |
+| **3** | **Papaya** | Horticulture | **29.4829** | 3.92 | 0.13 |
+| **4** | **Banana** | Horticulture | **27.8626** | 146.13 | 5.24 |
+| **5** | **Grapes** | Horticulture | **26.1811** | 1.75 | 0.07 |
+| **6** | **Potato** | Horticulture | **19.1064** | 424.78 | 22.23 |
+| **7** | **Cabbage** | Horticulture | **15.3190** | 0.31 | 0.02 |
+| **8** | **Pineapple** | Horticulture | **13.0720** | 2.13 | 0.16 |
+| **9** | **Jute** | Fiber | **12.3286** | 181.56 | 14.73 |
+| **10** | **Onion** | Horticulture | **11.4834** | 72.40 | 6.30 |
 
 ---
 

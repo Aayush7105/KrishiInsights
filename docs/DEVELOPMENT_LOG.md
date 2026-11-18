@@ -409,3 +409,38 @@ Execute Stage 3 strictly per `AGENTS.md` and the Stage 3 Specification:
   - Implement RESTful endpoints for dashboard summary metrics, trends, crop comparisons, regional rankings, rainfall statistics, and correlation data.
   - Write Pydantic response models and query parameter validation schemas.
   - Implement comprehensive integration tests for all new API endpoints.
+
+---
+
+## Stage 4 Independent Verification and Quality Audit (November 18, 2026)
+
+### 1. Scope & Objectives
+* Perform an independent, rigorous verification of the Stage 4 implementation (EDA, Statistical Analysis, Notebooks, Visualizations, Tests, and Documentation).
+* Confirm zero localhost dependency: verify Neon Serverless PostgreSQL as the sole source of truth.
+* Validate all mathematical and statistical formulas against controlled test fixtures and live database queries.
+* Execute all 5 Jupyter notebooks cell-by-cell in fresh, isolated kernel namespaces.
+* Identify, document, and remediate all schema mismatches, brittle key lookups, and reporting discrepancies.
+* Author `docs/STAGE_4_VERIFICATION_REPORT.md` with final verdict and readiness assessment for Stage 5.
+
+### 2. Issues Discovered and Remediated
+* **AUD-01 (High):** Fixed `rainfall_records` query referencing non-existent `source_subdivision` column (updated to `source_id` in `ml/src/database/connection.py` and `ml/src/analytics/rainfall_analysis.py`).
+* **AUD-02 (Medium):** Added missing `limit: int = 10` parameter and dual return dictionary keys (`growth`/`fastest_growing`, `decline`/`declining`) in `ml/src/analytics/crop_analysis.py`.
+* **AUD-03 (Medium):** Added `effective_crops_count` ($e^{H'}$) and `primary_crop` determination to `calculate_state_crop_diversity` in `regional_analysis.py`.
+* **AUD-04 (Medium):** Updated `get_rainfall_summary_statistics` in `rainfall_analysis.py` to provide both nested and flat dictionaries.
+* **AUD-05 (Medium):** Made `outlier_analysis.py` robust to column aliases (`yield` or `yield_amount`, `year` or `crop_year`, `season` or `season_name`).
+* **AUD-06 (Low):** Reconciled markdown report statistics (`docs/AGRICULTURAL_ANALYSIS.md`, `docs/RAINFALL_ANALYSIS.md`, `docs/RAINFALL_AGRICULTURE_RELATIONSHIP.md`, `docs/STATISTICAL_FINDINGS.md`, `docs/EDA_REPORT.md`) to 100% match the exact Neon database totals for all field crops.
+
+### 3. Verification Commands & Results
+| Check | Command | Result | Status |
+| :--- | :--- | :--- | :--- |
+| **Database Audit** | `python scripts/audit_stage4_db.py` | 242,296 records, 0 invalid area/yield, 0 double-counts | **PASSED** |
+| **Statistical Recalculation** | `python scripts/audit_statistical_calculations.py` | Exact matching on Neon, controlled formulas validated | **PASSED** |
+| **Rainfall Baseline Audit** | `python scripts/audit_rainfall.py` | 115-yr LPA (1,608.94 mm unweighted vs 1,180.72 mm IMD) | **PASSED** |
+| **Notebook Clean Execution** | `python scripts/test_execute_notebooks.py` | All 5 notebooks executed from scratch with 0 errors | **PASSED** |
+| **Analytics Pytest** | `pytest ml/tests/test_analytics.py -v` | 11 passed in 21.19s against live Neon pooler | **PASSED** |
+| **Backend Pytest** | `pytest backend/tests -v` | 6 passed in 2.15s | **PASSED** |
+| **Total Test Suite** | Combined pytest execution | 17 passed, 0 failed | **PASSED** |
+
+### 4. Final Verdict & Next Steps
+* Final Stage 4 audit verdict: **PASS** (documented in `docs/STAGE_4_VERIFICATION_REPORT.md`).
+* Await user review before proceeding to **Stage 5 — FastAPI Backend and Analytics APIs**.

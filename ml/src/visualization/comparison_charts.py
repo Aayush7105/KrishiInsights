@@ -185,7 +185,9 @@ def plot_crop_yield_boxplots(
         y=yield_c,
         data=subset,
         order=crops,
+        hue=crop_c,
         palette=palette,
+        legend=False,
         fliersize=3,
         linewidth=1.2,
         ax=ax

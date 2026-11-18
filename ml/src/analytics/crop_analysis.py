@@ -189,14 +189,15 @@ def get_top_crops_rankings(
 def get_crop_growth_and_decline_rankings(
     base_window: tuple = (1997, 1999),
     recent_window: tuple = (2013, 2015),
-    min_observations: int = 50
+    min_observations: int = 50,
+    limit: int = 10
 ) -> Dict[str, pd.DataFrame]:
     """
     Computes percentage change between early historical baseline (1997-1999)
     and recent period (2013-2015) using 3-year smoothed windows to avoid single-year anomalies.
     Returns:
-    - 'growth': Top 10 crops with highest production expansion
-    - 'decline': Top 10 crops with highest production contraction
+    - 'growth' / 'fastest_growing': Top crops with highest production expansion
+    - 'decline' / 'declining': Top crops with highest production contraction
     """
     sql = """
         WITH base_period AS (
@@ -243,6 +244,11 @@ def get_crop_growth_and_decline_rankings(
         "min_obs": min_observations
     }
     df = run_query(sql, params)
-    growth_df = df.sort_values(by="pct_change", ascending=False).head(10).reset_index(drop=True)
-    decline_df = df.sort_values(by="pct_change", ascending=True).head(10).reset_index(drop=True)
-    return {"growth": growth_df, "decline": decline_df}
+    growth_df = df.sort_values(by="pct_change", ascending=False).head(limit).reset_index(drop=True)
+    decline_df = df.sort_values(by="pct_change", ascending=True).head(limit).reset_index(drop=True)
+    return {
+        "growth": growth_df,
+        "decline": decline_df,
+        "fastest_growing": growth_df,
+        "declining": decline_df
+    }

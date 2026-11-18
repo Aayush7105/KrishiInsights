@@ -38,37 +38,37 @@ All analyses and descriptive statistics presented in this report were executed d
 ## 3. Descriptive Summary Statistics
 
 ### 3.1 Field Crops Group (`yield_unit = 'Tonnes/Hectare'`)
-The field crops group encompasses **240,317 observations** across 123 distinct field crops (cereals, pulses, oilseeds, cash crops, fibers, spices, and horticulture).
+The field crops group encompasses **240,338 observations** across 123 distinct field crops (cereals, pulses, oilseeds, cash crops, fibers, spices, and horticulture).
 
 | Statistic | Area (Hectares) | Production (Metric Tonnes) | Yield (Tonnes / Hectare) |
 | :--- | :--- | :--- | :--- |
-| **Count** | 240,317 | 240,317 | 240,317 |
-| **Mean** | 12,082.41 | 24,196.18 | 3.5241 |
-| **Median (Q2)** | 436.00 | 589.00 | 1.1000 |
-| **Std Deviation ($\sigma$)** | 46,892.14 | 148,827.65 | 11.2318 |
-| **Minimum** | 0.04 | 0.00 | 0.0000 |
-| **Maximum** | 858,010.00 | 12,508,000.00 | 600.0000 |
-| **IQR ($Q_3 - Q_1$)** | 4,217.00 | 6,321.00 | 1.8400 |
+| **Count** | 240,338 | 240,338 | 240,338 |
+| **Mean** | 12,150.50 | 45,213.18 | 4.4187 |
+| **Median (Q2)** | 600.00 | 704.00 | 1.0000 |
+| **Std Deviation ($\sigma$)** | 51,012.27 | 368,529.83 | 12.1075 |
+| **Minimum** | 0.10 | 0.00 | 0.0000 |
+| **Maximum** | 8,580,100.00 | 20,049,700.00 | 188.4150 |
+| **IQR ($Q_3 - Q_1$)** | 4,410.00 | 6,630.00 | 1.7787 |
 
 #### Distribution Characteristics
-- **Pronounced Right-Skewness:** The median cultivated area ($436\text{ ha}$) and median production ($589\text{ tonnes}$) are vastly lower than their respective arithmetic means ($12,082\text{ ha}$ and $24,196\text{ tonnes}$). This reflects the predominance of localized district-level cultivation interspersed with major commercial monoculture tracts (e.g., Uttar Pradesh sugarcane or West Bengal rice).
-- **Yield Variance:** Field crop yield exhibits high variance ($\sigma = 11.23\text{ T/Ha}$) because it aggregates both low-yield coarse cereals and pulses ($0.5 - 2\text{ T/Ha}$) alongside high-biomass crops such as Sugarcane ($60 - 110\text{ T/Ha}$) and Banana ($20 - 65\text{ T/Ha}$).
+- **Pronounced Right-Skewness:** The median cultivated area ($600\text{ ha}$) and median production ($704\text{ tonnes}$) are vastly lower than their respective arithmetic means ($12,150.5\text{ ha}$ and $45,213.2\text{ tonnes}$). This reflects the predominance of localized district-level cultivation interspersed with major commercial monoculture tracts (e.g., Uttar Pradesh sugarcane or West Bengal rice).
+- **Yield Variance:** Field crop yield exhibits high variance ($\sigma = 12.11\text{ T/Ha}$) because it aggregates both low-yield coarse cereals and pulses ($0.5 - 2\text{ T/Ha}$) alongside high-biomass crops such as Sugarcane ($60 - 110\text{ T/Ha}$) and Banana ($20 - 65\text{ T/Ha}$).
 
 ### 3.2 Tree Crops Group (`yield_unit = 'Nuts/Hectare'`)
-Coconut is analyzed as a distinct group comprising **1,979 observations**.
+Coconut is analyzed as a distinct group comprising **1,958 observations**.
 
 | Statistic | Area (Hectares) | Production (Number of Nuts) | Yield (Nuts / Hectare) |
 | :--- | :--- | :--- | :--- |
-| **Count** | 1,979 | 1,979 | 1,979 |
-| **Mean** | 18,241.12 | 108,495,120.40 | 5,842.15 |
-| **Median (Q2)** | 1,180.00 | 5,420,000.00 | 4,850.00 |
-| **Std Deviation ($\sigma$)** | 45,712.98 | 275,640,118.22 | 4,218.40 |
-| **Minimum** | 0.10 | 100.00 | 50.00 |
-| **Maximum** | 291,520.00 | 2,154,800,000.00 | 45,000.00 |
-| **IQR ($Q_3 - Q_1$)** | 12,450.00 | 58,100,000.00 | 4,120.00 |
+| **Count** | 1,958 | 1,958 | 1,958 |
+| **Mean** | 14,472.25 | 66,384,897.45 | 4,040.40 |
+| **Median (Q2)** | 1,926.00 | 239,156.50 | 43.12 |
+| **Std Deviation ($\sigma$)** | 26,972.08 | 177,991,513.67 | 5,186.76 |
+| **Minimum** | 1.00 | 0.00 | 0.00 |
+| **Maximum** | 149,419.00 | 1,250,800,000.00 | 38,800.00 |
+| **IQR ($Q_3 - Q_1$)** | 14,010.25 | 11,685,216.90 | 7,523.86 |
 
 > [!IMPORTANT]
-> **Methodological Verification:** If Coconut production had been combined with field crops, its nut count (averaging $108\text{ million}$ units per observation) would have severely corrupted all national production and yield statistics. Keeping Coconut strictly separated preserves the validity of the entire analytics pipeline.
+> **Methodological Verification:** If Coconut production had been combined with field crops, its nut count (averaging $66.4\text{ million}$ units per observation) would have severely corrupted all national production and yield statistics. Keeping Coconut strictly separated preserves the validity of the entire analytics pipeline.
 
 ---
 
@@ -76,25 +76,25 @@ Coconut is analyzed as a distinct group comprising **1,979 observations**.
 
 | Harvest Year | Record Count | Reporting States | Reporting Districts | Reporting Crops |
 | :---: | :---: | :---: | :---: | :---: |
-| **1997** | 8,858 | 26 | 412 | 84 |
-| **1998** | 12,042 | 28 | 480 | 92 |
-| **1999** | 12,416 | 29 | 495 | 96 |
-| **2000** | 13,441 | 30 | 512 | 101 |
-| **2001** | 13,874 | 31 | 534 | 104 |
-| **2002** | 14,210 | 31 | 542 | 106 |
-| **2003** | 14,561 | 32 | 556 | 108 |
-| **2004** | 13,922 | 32 | 560 | 107 |
-| **2005** | 13,745 | 32 | 565 | 109 |
-| **2006** | 13,602 | 32 | 572 | 110 |
-| **2007** | 14,082 | 33 | 584 | 112 |
-| **2008** | 14,250 | 33 | 592 | 114 |
-| **2009** | 13,892 | 33 | 601 | 113 |
-| **2010** | 13,945 | 33 | 610 | 115 |
-| **2011** | 14,102 | 33 | 622 | 116 |
-| **2012** | 13,780 | 33 | 634 | 115 |
-| **2013** | 14,120 | 33 | 645 | 118 |
-| **2014** | 11,840 | 32 | 640 | 112 |
-| **2015** | 2,615 | 18 | 320 | 64 |
+| **1997** | 8,860 | 23 | 474 | 57 |
+| **1998** | 11,259 | 27 | 497 | 59 |
+| **1999** | 12,441 | 28 | 515 | 59 |
+| **2000** | 13,874 | 30 | 529 | 60 |
+| **2001** | 14,357 | 31 | 539 | 61 |
+| **2002** | 15,992 | 31 | 560 | 62 |
+| **2003** | 16,569 | 32 | 570 | 63 |
+| **2004** | 15,739 | 32 | 572 | 62 |
+| **2005** | 15,108 | 32 | 571 | 63 |
+| **2006** | 14,496 | 32 | 569 | 62 |
+| **2007** | 14,142 | 33 | 576 | 63 |
+| **2008** | 14,244 | 33 | 584 | 64 |
+| **2009** | 14,028 | 33 | 588 | 64 |
+| **2010** | 13,978 | 33 | 595 | 65 |
+| **2011** | 13,991 | 33 | 600 | 65 |
+| **2012** | 13,858 | 33 | 605 | 65 |
+| **2013** | 13,767 | 33 | 610 | 65 |
+| **2014** | 10,757 | 32 | 600 | 63 |
+| **2015** | 636 | 8 | 137 | 41 |
 
 ### Observations on Observation Density
 1. **Stable Core Reporting (1998–2013):** Observation frequency remains exceptionally consistent between 1998 and 2013, averaging ~13,800 records per harvest year across 32–33 states.

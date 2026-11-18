@@ -125,7 +125,12 @@ def load_agricultural_data(
         query += " AND a.yield_unit != 'Nuts/Hectare'"
 
     query += " ORDER BY a.year, s.state_name, d.district_name, c.crop_name;"
-    return run_query(query, params)
+    df = run_query(query, params)
+    if not df.empty:
+        df["yield"] = df["yield_amount"]
+        df["crop_year"] = df["year"]
+        df["season_name"] = df["season"]
+    return df
 
 def load_rainfall_data(
     state_name: Optional[str] = None,
@@ -143,7 +148,7 @@ def load_rainfall_data(
             r.monsoon_rainfall_mm,
             r.rabi_rainfall_mm,
             r.pre_monsoon_rainfall_mm,
-            r.source_subdivision
+            r.source_id
         FROM rainfall_records r
         JOIN states s ON r.state_id = s.id
         WHERE 1=1

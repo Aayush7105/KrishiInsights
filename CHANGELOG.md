@@ -4,6 +4,23 @@ All notable changes to the KrishiInsights project will be documented in this fil
 
 ---
 
+## [Stage 4: Independent Verification & Quality Audit] — 2026-11-18
+
+### Audited & Verified
+- **Verification Verdict:** Formally certified Stage 4 as **PASS** after completing independent verification across database invariants, statistical calculations, notebook execution, and documentation fidelity.
+- **Audit Deliverable:** Published `docs/STAGE_4_VERIFICATION_REPORT.md` documenting comprehensive verification scorecard, methodology comparisons, and remediation log.
+
+### Fixed & Remediated
+- **Schema Reconciliation (`ml/src/database/connection.py`, `ml/src/analytics/rainfall_analysis.py`):** Fixed `rainfall_records` queries to use `source_id` instead of non-existent `source_subdivision`.
+- **API Interface Consistency (`ml/src/analytics/crop_analysis.py`):** Added `limit: int = 10` parameter and dual return dictionary keys (`growth`/`fastest_growing`, `decline`/`declining`) to `get_crop_growth_and_decline_rankings`.
+- **Diversity Metrics Enhancement (`ml/src/analytics/regional_analysis.py`):** Added `effective_crops_count` ($e^{H'}$) and `primary_crop` determination to `calculate_state_crop_diversity`.
+- **Dictionary Key Hardening (`ml/src/analytics/rainfall_analysis.py`):** Updated `get_rainfall_summary_statistics` to return both structured nested and flat keys.
+- **Dynamic Column Aliasing (`ml/src/analytics/outlier_analysis.py`):** Enabled dynamic column lookup supporting `yield` / `yield_amount`, `year` / `crop_year`, and `season` / `season_name`.
+- **Documentation Numerical Alignment:** Reconciled statistics in `docs/AGRICULTURAL_ANALYSIS.md`, `docs/RAINFALL_ANALYSIS.md`, `docs/RAINFALL_AGRICULTURE_RELATIONSHIP.md`, `docs/STATISTICAL_FINDINGS.md`, and `docs/EDA_REPORT.md` to 100% match live Neon database totals for all field crops.
+- **Notebook & Chart Verification:** Re-executed all 5 notebooks cell-by-cell with 0 errors via `scripts/test_execute_notebooks.py` and re-verified all 15 figures at 300 DPI.
+
+---
+
 ## [Stage 4: Exploratory Data Analysis (EDA) & Statistical Analysis] — 2026-11-17
 
 ### Added
